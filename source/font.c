@@ -79,12 +79,82 @@ int8_t fontDrawChar8(int16_t x, int16_t y, char8_t c)
 	return CHAR_SIZE;
 }
 
+/**
+ * @brief Handles a char8_t control character.
+ * @param o_x The x original position.
+ * @param o_y The y original position.
+ * @param[in] x The x position.
+ * @param[in] y The y position.
+ * @param c The char8_t character.
+ */
+static void fontDrawControlChar8(int16_t o_x, int16_t o_y, int16_t* x, int16_t* y, char8_t c)
+{
+	switch (c)
+	{
+		case C_PKMN:
+			*x += fontDrawChar8(*x, *y, 0xE1); // PK
+			*x += fontDrawChar8(*x, *y, 0xE2); // MN
+			break;
+		case C_LINE_BREAK:
+			*x = o_x;
+			*y += CHAR_SIZE;
+			break;
+		case C_PLAYER_NAME:
+			*x += fontDrawString8(*x, *y, save + 0x2598);
+			break;
+		case C_RIVAL_NAME:
+			*x += fontDrawString8(*x, *y, save + 0x25F6);
+			break;
+		case C_POKE:
+			*x += fontDrawChar8(*x, *y, 0x8F); // P
+			*x += fontDrawChar8(*x, *y, 0x8E); // O
+			*x += fontDrawChar8(*x, *y, 0x8A); // K
+			*x += fontDrawChar8(*x, *y, 0xBA); // é
+			break;
+		case C_ELLIPSIS:
+			*x += fontDrawChar8(*x, *y, 0x75); // …
+			break;
+		case C_PC:
+			*x += fontDrawChar8(*x, *y, 0x8F); // P
+			*x += fontDrawChar8(*x, *y, 0x82); // C
+			break;
+		case C_TM:
+			*x += fontDrawChar8(*x, *y, 0x82); // T
+			*x += fontDrawChar8(*x, *y, 0x8C); // M
+			break;
+		case C_TRAINER:
+			*x += fontDrawChar8(*x, *y, 0x93); // T
+			*x += fontDrawChar8(*x, *y, 0x91); // R
+			*x += fontDrawChar8(*x, *y, 0x80); // A
+			*x += fontDrawChar8(*x, *y, 0x88); // I
+			*x += fontDrawChar8(*x, *y, 0x8D); // N
+			*x += fontDrawChar8(*x, *y, 0x84); // E
+			*x += fontDrawChar8(*x, *y, 0x91); // R
+			break;
+		case C_ROCKET:
+			*x += fontDrawChar8(*x, *y, 0x91); // R
+			*x += fontDrawChar8(*x, *y, 0x8E); // O
+			*x += fontDrawChar8(*x, *y, 0x82); // C
+			*x += fontDrawChar8(*x, *y, 0x8A); // K
+			*x += fontDrawChar8(*x, *y, 0x84); // E
+			*x += fontDrawChar8(*x, *y, 0x93); // T
+			break;
+		default: return;
+	}
+}
+
 int16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str)
 {
 	int16_t o_x = x, o_y = y;
 	while (*str != 0x00 && *str != 0x50)
 	{
+		// If it is a control char
+		if (*str >= 0x48 && *str <= 0x5F)
+		{
+			fontDrawControlChar8(o_x, o_y, &x, &y, *str);
+		}
 		// If it is a print/junk char
+		else
 		{
 			x += fontDrawChar8(x, y, *str);
 		}
