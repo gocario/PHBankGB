@@ -204,7 +204,7 @@ static void boxViewerDrawBottom(void)
 	boxDrawBox(&cursor.pc, 0, 0);
 	boxDrawBox(&cursor.bk, 176, 0);
 
-	if (cursor.vPkm && cursor.vPkm->species != 0)
+	if (cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm))
 	{
 		// fontDrawString8(200, 50, cursor.vPkm->nameOT);
 		// fontDrawString8(200, 70, cursor.vPkm->nameNK);
@@ -265,7 +265,7 @@ static void boxSelectMovePokemon(void)
 	if (!cursor.sPkm)
 	{
 		// If the current Pokémon slot isn't empty (to avoid empty slot move)
-		if (cursor.vPkm->species != 0x0)
+		if (!saveIsPkmEmpty(cursor.vPkm))
 		{
 			// Select the current Pokémon
 			cursor.sPkm = cursor.vPkm;

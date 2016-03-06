@@ -217,7 +217,7 @@ static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList
 	pkmList->size = size;
 	pkmList->capacity = capacity;
 
-	printf("List %u/%u (%u)\n", pkmList->size, pkmList->count, pkmList->capacity);
+	printf("List %u/%u (x%u)\n", pkmList->count, pkmList->capacity, pkmList->size);
 
 	for (; i < pkmList->count; i++)
 		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
@@ -238,6 +238,8 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
 	uint8_t i = 0;
 
 	printf("List %u/%u (%u)\n", pkmList->size, pkmList->count, pkmList->capacity);
+
+	save[0] = pkmList->count;
 
 	for (; i < pkmList->capacity; i++)
 		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
@@ -321,6 +323,11 @@ bool savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBa
 	return _savePastePkm(src, dst);
 }
 
+bool saveIsPkmEmpty(const SAV_Pokemon* pkm)
+{
+	return pkm->species == 0x00 || pkm->species > 0xBE;
+}
+
 const char8_t* saveGetTrainer(void)
 {
 	return save + 0x2598;
@@ -381,28 +388,40 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 	{
 		// TODO: memalign the Pokémon in the list to avoid empty slot amongst occupied slots.
 
-		// // Iterate to find the empty slots
-		// for (uint8_t iP = 0, iPmin = 0; iP < sgame->boxes[iB].capacity; iP++)
-		// {
-		// 	// If looking for the next empty slot
-		// 	if (iPmin == 0)
-		// 	{
-		// 		if (sgame->boxes[iB].slots[iP].species == 0) // 0xFF?
-		// 		{
-		// 			iPmin = iP+1;
-		// 		}
-		// 	}
-		// 	// If looking for the next occupied slot
-		// 	else
-		// 	{
-		// 		if (sgame->boxes[iB].slots[iP].species != 0) // 0xFF?
-		// 		{
-		// 			_saveMovePkm(&sgame->boxes[iB].slots[iP], &sgame->boxes[iB].slots[iPmin-1]);
-		// 			iP = iPmin;
-		// 			iPmin = 0;
-		// 		}
-		// 	}
-		// }
+		// Iterate to find the empty slots
+		for (uint8_t iP = 0, iPmin = 0; iP < sgame->boxes[iB].capacity; iP++)
+		{
+			// If looking for the next empty slot
+			if (iPmin == 0)
+			{
+				printf("Looking for empty slot (%u) -> %03u (%03u)\n", iP, sgame->boxes[iB].slots[iP].species, save[0x4001+iP]);
+				if (saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
+				{
+					printf("New empty slot (%u)\n", iP);
+					iPmin = iP+1;
+				}
+			}
+			// If looking for the next occupied slot
+			else
+			{
+				printf("Looking for occupied slot (%u) -> %03u (%03u)\n", iP, sgame->boxes[iB].slots[iP].species, save[0x4001+iP]);
+				if (!saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
+				{
+					printf("New occupied slot (%u)\n", iP);
+					_saveMovePkm(&sgame->boxes[iB].slots[iP], &sgame->boxes[iB].slots[iPmin-1]);
+					iP = iPmin-1;
+					iPmin = 0;
+				}
+			}
+		}
+
+		// Count the Pokémon
+		sgame->boxes[iB].count = 0;
+		for (uint8_t iP = 0; iP < sgame->boxes[iB].capacity; iP++)
+		{
+			if (!saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
+				sgame->boxes[iB].count++;
+		}
 
 		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < 6 ?  0 : 0x5B4) + iB * BOX_SIZE));
 	}

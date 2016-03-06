@@ -104,10 +104,10 @@ typedef struct
 	uint16_t special;
 
 	// Extra attributes
-	uint8_t species;		///< Species
-	char8_t nameOT[11];		///< OT name
-	char8_t nameNK[11];		///< Nickname
-	uint8_t nationalDex;	///< National Pokédex Id
+	uint8_t species;		///< Species from list
+	char8_t nameOT[11];		///< OT name from list
+	char8_t nameNK[11];		///< Nickname from list
+	uint8_t nationalDex;	///< National Pokédex
 } SAV_Pokemon;
 
 /// 
@@ -189,6 +189,13 @@ bool saveMovePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBan
  * @return Whether the Pokémon has been pasted.
  */
 bool savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked);
+
+/**
+ * @briefs Checks if a Pokémon is empty.
+ * @param pkm The Pokémon.
+ * @return Whether the Pokémon is empty.
+ */
+bool saveIsPkmEmpty(const SAV_Pokemon* pkm);
 
 /**
  * @todo jp
