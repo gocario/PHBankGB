@@ -39,6 +39,12 @@ void saveInitialize(void)
 	saveReadData(save, &sgame);
 }
 
+void saveExit(void)
+{
+	saveWriteData(save, &sgame);
+	saveWriteFile(save, "/rey_pokered_out.sav");
+}
+
 /**
  * @brief Reads a Pokémon from the savedata buffer.
  * @param[in] save The savedata buffer to the list offset.
@@ -118,6 +124,8 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 	// Extra attributes
 	for (uint8_t i = 0; i < 11; i++)
 		pkm->nameNK[i] = pkmbuf[i];
+
+	pkm->moved = false;
 }
 
 /**
@@ -130,6 +138,8 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
  */
 static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t index, uint8_t size, uint8_t capacity)
 {
+	if (!pkm->moved) return;
+
 	uint8_t* pkmbuf;
 
 	// Count (1) + Species.index (index)
@@ -213,6 +223,8 @@ static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList
 		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
 	for (; i < pkmList->capacity; i++)
 		memset(&pkmList->slots[i], 0, sizeof(SAV_Pokemon));
+
+
 }
 
 /**
@@ -227,7 +239,7 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
 
 	printf("List %u/%u (%u)\n", pkmList->size, pkmList->count, pkmList->capacity);
 
-	for (; i < pkmList->count; i++)
+	for (; i < pkmList->capacity; i++)
 		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
 }
 
@@ -259,6 +271,54 @@ SAV_PokemonList* saveGetBox(uint8_t box, bool inBank)
 SAV_Pokemon* saveGetPkm(uint8_t box, uint8_t slot, bool inBank)
 {
 	return &saveGetBox(box, inBank)->slots[slot];
+}
+
+/**
+ * @brief Swaps two Pokémon.
+ * @param src The Pokémon source.
+ * @param dst The Pokémon destination.
+ * @return Whether the Pokémon have been swapped.
+ */
+static bool _saveMovePkm(SAV_Pokemon* src, SAV_Pokemon* dst)
+{
+	// We copy the pokemon data
+	SAV_Pokemon tmp;
+	memcpy(&tmp, dst, sizeof(SAV_Pokemon));
+	memcpy(dst, src, sizeof(SAV_Pokemon));
+	memcpy(src, &tmp, sizeof(SAV_Pokemon));
+
+	// We valid the Pokémon move'd
+	src->moved = true;
+	dst->moved = true;
+
+	return true;
+}
+
+bool saveMovePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked)
+{
+	return _saveMovePkm(src, dst);
+}
+
+/**
+ * @brief Pastes a Pokémon over another.
+ * @param src The Pokémon source.
+ * @param dst The Pokémon destination.
+ * @return Whether the Pokémon has been pasted.
+ */
+static bool _savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst)
+{
+	// We copy the pokemon data
+	memcpy(dst, src, sizeof(SAV_Pokemon));
+
+	// We valid the Pokémon move'd
+	dst->moved = true;
+
+	return true;
+}
+
+bool savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked)
+{
+	return _savePastePkm(src, dst);
 }
 
 const char8_t* saveGetTrainer(void)
@@ -307,21 +367,44 @@ void saveWriteFile(const uint8_t* save, const char* path)
 void saveReadData(const uint8_t* save, SAV_Game* sgame)
 {
 	sgame->boxCount = 12;
+
 	for (uint8_t i = 0; i < sgame->boxCount; i++)
 	{
-		saveExtractPokemonList(save, &sgame->boxes[i],
-			(i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < 6 ?  0 : 0x5B4) + i * BOX_SIZE),
-			0x21, 20);
+		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < 6 ?  0 : 0x5B4) + i * BOX_SIZE), 0x21, 20);
 	}
 
 }
 
-void saveWriteData(uint8_t* save, const SAV_Game* sgame)
+void saveWriteData(uint8_t* save, SAV_Game* sgame)
 {
-	for (uint8_t i = 0; i < sgame->boxCount; i++)
+	for (uint8_t iB = 0; iB < sgame->boxCount; iB++)
 	{
-		saveInjectPokemonList(save, &sgame->boxes[i],
-			(i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < 6 ?  0 : 0x5B4) + i * BOX_SIZE));
+		// TODO: memalign the Pokémon in the list to avoid empty slot amongst occupied slots.
+
+		// // Iterate to find the empty slots
+		// for (uint8_t iP = 0, iPmin = 0; iP < sgame->boxes[iB].capacity; iP++)
+		// {
+		// 	// If looking for the next empty slot
+		// 	if (iPmin == 0)
+		// 	{
+		// 		if (sgame->boxes[iB].slots[iP].species == 0) // 0xFF?
+		// 		{
+		// 			iPmin = iP+1;
+		// 		}
+		// 	}
+		// 	// If looking for the next occupied slot
+		// 	else
+		// 	{
+		// 		if (sgame->boxes[iB].slots[iP].species != 0) // 0xFF?
+		// 		{
+		// 			_saveMovePkm(&sgame->boxes[iB].slots[iP], &sgame->boxes[iB].slots[iPmin-1]);
+		// 			iP = iPmin;
+		// 			iPmin = 0;
+		// 		}
+		// 	}
+		// }
+
+		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < 6 ?  0 : 0x5B4) + iB * BOX_SIZE));
 	}
 }
 

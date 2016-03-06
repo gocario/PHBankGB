@@ -12,6 +12,14 @@
 #define BOX_PKM_COUNT (BOX_ROW_PKM_COUNT*BOX_PKM_COUNT)
 #define BOX_HEADER_SELECTED (0) // TODO: -1
 
+typedef struct 
+{
+	bool inBank : 1;
+	int8_t box : 7;
+	int8_t row;
+	int8_t col;
+} CursorSlot;
+
 typedef struct
 {
 	bool inBank : 1;
@@ -24,11 +32,12 @@ typedef struct
 
 typedef struct
 {
-	uint64_t heldPkm;
+	CursorSlot sSlot;
 	CursorInbox pc;
 	CursorInbox bk;
 	CursorInbox* box;
 	SAV_Pokemon* vPkm;
+	SAV_Pokemon* sPkm;
 } CursorBox;
 
 static CursorBox cursor;
@@ -38,6 +47,22 @@ static void computeSlot(CursorInbox* cursorin)
 	cursorin->slot = cursorin->row * BOX_COL_PKM_COUNT + cursorin->col;
 }
 
+static void extractSlot(CursorInbox* cursorin, CursorSlot* cursorot)
+{
+	cursorot->inBank = cursorin->inBank;
+	cursorot->box = cursorin->box;
+	cursorot->row = cursorin->row;
+	cursorot->col = cursorin->col;
+}
+
+// static void injectSlot(CursorInbox* cursorin, CursorSlot* cursorot)
+// {
+// 	cursorin->inBank = cursorot->inBank;
+// 	cursorin->box = cursorot->box;
+// 	cursorin->row = cursorot->row;
+// 	cursorin->col = cursorot->col;
+// }
+
 static void boxViewerDrawTop(void);
 static void boxViewerDrawBottom(void);
 
@@ -45,6 +70,8 @@ static void boxDrawBox(CursorInbox* cursor, int16_t x, int16_t y);
 static void boxDrawPokemon(SAV_Pokemon* pkm, int16_t x, int16_t y);
 static void boxSelectViewBox(void);
 static void boxSelectViewPkm(void);
+static void boxSelectMovePokemon(void);
+static void boxCancelMovePokemon(void);
 static void boxSwapBox(void);
 static uint8_t boxGetHeight(void);
 static uint8_t boxGetWidth(uint8_t row);
@@ -54,11 +81,15 @@ void boxViewerInitialize(void)
 	cursor.pc.inBank = false;
 	cursor.pc.box = 0;
 	cursor.pc.row = 0;
+	cursor.pc.col = 0;
 	cursor.pc.slot = 0;
 	cursor.bk.inBank = true;
 	cursor.bk.box = 0;
 	cursor.bk.row = 0;
+	cursor.bk.col = 0;
 	cursor.bk.slot = 0;
+
+	cursor.sPkm = NULL;
 
 	cursor.box = &cursor.bk; boxSelectViewBox();
 	cursor.box = &cursor.pc; boxSelectViewBox();
@@ -139,6 +170,13 @@ void boxViewerUpdate(void)
 
 	if (kDown)
 	{
+		{
+			if (kDown & KEY_A)
+			{
+				boxSelectMovePokemon();
+			}
+		}
+
 		if (kDown & KEY_Y)
 		{
 			printf("CursorInbox:\n");
@@ -217,6 +255,58 @@ static void boxSelectViewPkm(void)
 	computeSlot(cursor.box);
 
 	cursor.vPkm = saveGetPkm(cursor.box->box, cursor.box->slot, cursor.box->inBank);
+}
+
+static void boxSelectMovePokemon(void)
+{
+	computeSlot(cursor.box);
+
+	// If no Pokémon currently selected
+	if (!cursor.sPkm)
+	{
+		// If the current Pokémon slot isn't empty (to avoid empty slot move)
+		if (cursor.vPkm->species != 0x0)
+		{
+			// Select the current Pokémon
+			cursor.sPkm = cursor.vPkm;
+			extractSlot(cursor.box, &cursor.sSlot);
+
+			// If the buttons are used
+			// if (cursor.isPkmDragged)
+			// {
+			// 	cursor.isPkmHeld = true;
+			// }
+		}
+	}
+	// Else if there is a current Pokémon
+	else if (cursor.vPkm)
+	{
+		// If the selected Pokémon isn't the current Pokémon
+		if (cursor.sPkm != cursor.vPkm)
+		{
+			// Swap the selected Pokémon with the current Pokémon
+			bool moved = saveMovePkm(cursor.sPkm, cursor.vPkm, cursor.sSlot.inBank, cursor.box->inBank);
+
+			// If the Pokémon had moved
+			if (moved)
+			{
+				boxCancelMovePokemon();
+			}
+
+			// Populate the Pokémon data
+			// boxPopulatePokemon(cursor.vPkm);
+		}
+		else
+		{
+			// Cancel the selection, since it's moved to the same slot
+			boxCancelMovePokemon();
+		}
+	}
+}
+
+static void boxCancelMovePokemon(void)
+{
+	cursor.sPkm = NULL;
 }
 
 static void boxSwapBox(void)

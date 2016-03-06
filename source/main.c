@@ -34,6 +34,8 @@ int main(void)
 		boxViewerDraw();
 	}
 
+	saveExit();
+
 	fontExit();
 	gfxFree();
 	sf2d_fini();

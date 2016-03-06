@@ -74,6 +74,12 @@ typedef enum
 /// 
 typedef struct
 {
+	// Memory pointer
+	uint8_t* pk1;	///< UNUSED / Pk1 structure pointer
+	uint8_t* ot1;	///< UNUSED / OT name pointer
+	uint8_t* nk1;	///< UNUSED / NK name pointer
+	bool moved;
+
 	// Shared attributes
 	uint8_t speciesIndex;
 	uint16_t currentHP;
@@ -99,20 +105,22 @@ typedef struct
 
 	// Extra attributes
 	uint8_t species;		///< Species
-	uint8_t nameOT[11];		///< OT name
-	uint8_t nameNK[11];		///< Nickname
+	char8_t nameOT[11];		///< OT name
+	char8_t nameNK[11];		///< Nickname
 	uint8_t nationalDex;	///< National Pokédex Id
 } SAV_Pokemon;
 
 /// 
 typedef struct
 {
-	uint8_t count;
-
-	uint8_t size;
-	uint8_t capacity;
+	uint8_t size;		///< The size of each elements.
+	uint8_t capacity;	///< The max size of the list (<= POKEMON_LIST_MAX_COUNT).
 	uint8_t species[POKEMON_LIST_MAX_COUNT];
 	SAV_Pokemon slots[POKEMON_LIST_MAX_COUNT];
+
+	// Extra attributes
+	uint8_t count;		///< The count of Pokémon (<= capacity).
+	char8_t title[11];	///< An emulated title box.
 } SAV_PokemonList;
 
 /// 
@@ -139,31 +147,57 @@ extern SAV_Bank sbank;
 void saveInitialize(void);
 
 /**
+ * @brief Exits the save module.
+ */
+void saveExit(void);
+
+/**
  * @brief Gets a box from a list.
  * @param[in] save The savedata buffer.
  * @param box The id of the box.
  * @param inBank Whether the box is in bank.
- * @return The pokemon list.
+ * @return The Pokémon list.
  */
 SAV_PokemonList* saveGetBox(uint8_t box, bool inBank);
 
 /**
- * @brief Gets a pokemon from a list.
+ * @brief Gets a Pokémon from a list.
  * @param[in] save The savedata buffer.
  * @param box The id of the box.
  * @param slot The id of the slot.
  * @param inBank Whether the box is in bank.
- * @return The pokemon.
+ * @return The Pokémon.
  */
 SAV_Pokemon* saveGetPkm(uint8_t box, uint8_t slot, bool inBank);
 
 /**
- * @todo
+ * @brief Swaps two Pokémon.
+ * @param src The Pokémon source.
+ * @param dst The Pokémon destination.
+ * @param srcBanked Whether the source is in bank.
+ * @param dstBanked Whether the destination is in bank.
+ * @return Whether the Pokémon have been swapped.
+ */
+bool saveMovePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked);
+
+/**
+ * @brief Pastes a Pokémon over another.
+ * @param src The Pokémon source.
+ * @param dst The Pokémon destination.
+ * @param srcBanked Whether the source is in bank.
+ * @param dstBanked Whether the destination is in bank.
+ * @return Whether the Pokémon has been pasted.
+ */
+bool savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked);
+
+/**
+ * @todo jp
  */
 uint8_t getBoxCount(bool inBank);
 
 /**
- * @todo
+ * @brief Gets the name of the game's trainer.
+ * @return The trainer's name as string8_t.
  */
 const char8_t* saveGetTrainer(void);
 
@@ -193,7 +227,7 @@ void saveReadData(const uint8_t* save, SAV_Game* sgame);
  * @param[in/out] save The savedata buffer.
  * @param[in] path The path of the save file.
  */
-void saveWriteData(uint8_t* save, const SAV_Game* sgame);
+void saveWriteData(uint8_t* save, SAV_Game* sgame);
 
 /**
  * @brief Fixs the checksum of a save.
