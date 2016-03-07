@@ -135,6 +135,9 @@ void boxViewerUpdate(void)
 				boxSwapBox();
 				cursor.box->row = row;
 				cursor.box->col = boxGetWidth(cursor.box->row)-1;
+
+				if (cursor.box->row > boxGetHeight()-1) cursor.box->row = boxGetHeight()-1;
+
 			}
 			else if (cursor.box->col > boxGetWidth(cursor.box->row)-1)
 			{
@@ -143,6 +146,8 @@ void boxViewerUpdate(void)
 				boxSwapBox();
 				cursor.box->row = row;
 				cursor.box->col = 0;
+
+				if (cursor.box->row > boxGetHeight()-1) cursor.box->row = boxGetHeight()-1;
 			}
 
 			if (cursor.box->row < BOX_HEADER_SELECTED) cursor.box->row = boxGetHeight()-1;
@@ -232,7 +237,7 @@ static void boxDrawBox(CursorInbox* cursorin, int16_t x, int16_t y)
 	gfxDrawPanel(x, y, 2, 16);
 	gfxDrawPanel(x, y + 32, 24, 16);
 
-	for (uint8_t i = 0; i < POKEMON_LIST_MAX_COUNT; i++)
+	for (uint8_t i = 0; i < cursorin->vBox->capacity; i++)
 	{
 		boxDrawPokemon(&cursorin->vBox->slots[i], x + 20 + 32 * (i % 4), y + 44 + 24 * (i / 4));
 	}

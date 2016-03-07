@@ -10,18 +10,18 @@ typedef const struct {
 	unsigned char pixel_data[];
 } RAW_img;
 
-extern RAW_img pkmIconsGB_img;
+extern RAW_img pkmIconsGBC_img;
 
-sf2d_texture* pkmIconsGB;
+sf2d_texture* pkmIconsGBC;
 
 void gfxCreate(void)
 {
-	pkmIconsGB = sf2d_create_texture_mem_RGBA8(pkmIconsGB_img.pixel_data, pkmIconsGB_img.width, pkmIconsGB_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	pkmIconsGBC = sf2d_create_texture_mem_RGBA8(pkmIconsGBC_img.pixel_data, pkmIconsGBC_img.width, pkmIconsGBC_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 }
 
 void gfxFree(void)
 {
-	sf2d_free_texture(pkmIconsGB);
+	sf2d_free_texture(pkmIconsGBC);
 }
 
 GFX_PkmIcon gfxGetPokemonIcon(uint8_t species)
@@ -208,37 +208,35 @@ void gfxDrawPokemonIcon(int16_t x, int16_t y, GFX_Species icon, GFX_Frame frame)
 {
 	if (icon > SPECIES_MEW) icon = SPECIES_MISSINGNO;
 
-	sf2d_draw_texture_part(pkmIconsGB, x, y, 16 * (frame + (icon % PKM_PER_ROW) * 2), 16 * (icon / PKM_PER_ROW), 16, 16);
+	sf2d_draw_texture_part(pkmIconsGBC, x, y, 16 * (frame + (icon % PKM_PER_ROW) * 2), 16 * (icon / PKM_PER_ROW), 16, 16);
 }
 
 void gfxDrawPanel(int16_t x, int16_t y, uint8_t row, uint8_t col)
 {
-	uint16_t o_x = x, o_y = y;
-
 	// Top left
-	fontDrawChar8(o_x, o_y, 0x79);
+	fontDrawChar8(x, y, 0x79);
 
 	// Top right
-	fontDrawChar8(o_x + (col + 1) * 8, o_y, 0x7B);
+	fontDrawChar8(x + (col + 1) * 8, y, 0x7B);
 
 	// Bottom left
-	fontDrawChar8(o_x, o_y + (row + 1) * 8, 0x7D);
+	fontDrawChar8(x, y + (row + 1) * 8, 0x7D);
 
 	// Bottom right
-	fontDrawChar8(o_x + (col + 1) * 8, o_y + (row + 1) * 8, 0x7E);
+	fontDrawChar8(x + (col + 1) * 8, y + (row + 1) * 8, 0x7E);
 
 	// Horizontal
 	for (uint8_t xcol = 0; xcol < col; xcol++)
 	{
-		fontDrawChar8(o_x + (xcol + 1) * 8, o_y, 0x7A);
-		fontDrawChar8(o_x + (xcol + 1) * 8, o_y + (row + 1) * 8, 0x7A);
+		fontDrawChar8(x + (xcol + 1) * 8, y, 0x7A);
+		fontDrawChar8(x + (xcol + 1) * 8, y + (row + 1) * 8, 0x7A);
 	}
 
 	// Vertical
 	for (uint8_t yrow = 0; yrow < row; yrow++)
 	{
-		fontDrawChar8(o_x, o_y + (yrow + 1) * 8, 0x7C);
-		fontDrawChar8(o_x + (col + 1) * 8, o_y + (yrow + 1) * 8, 0x7C);
+		fontDrawChar8(x, y + (yrow + 1) * 8, 0x7C);
+		fontDrawChar8(x + (col + 1) * 8, y + (yrow + 1) * 8, 0x7C);
 	}
 }
 

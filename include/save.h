@@ -5,7 +5,7 @@
 #define SAVE_SIZE (0x8000) // 0x7A4C
 #define BANK_SIZE (0x5900) // 0x58A8
 #define BOX_SIZE (0x462)
-#define POKEMON_LIST_MAX_COUNT (30) // Party: 6 | Box: 20 | BoxJP: 30
+#define POKEMON_LIST_MAX_COUNT (32) // Party: 6 | Box: 20 | BoxJP: 30 | BoxBK: 32
 #define GAME_BOX_MAX_COUNT (12) // 12 | JP: 8
 #define BANK_BOX_MAX_COUNT (20) // 20
 
@@ -13,8 +13,8 @@
 typedef enum
 {
 	POKEMON_RED,	///< Pokémon Red
-	POKEMON_BLUE,	///< Pokémon Blue
 	POKEMON_GREEN,	///< Pokémon Green
+	POKEMON_BLUE,	///< Pokémon Blue
 	POKEMON_YELLOW,	///< Pokémon Yellow
 } SAV_GameVersion;
 

@@ -516,7 +516,7 @@ void bankReadData(uint8_t* bank, SAV_Bank* sbank, uint16_t bytesRead)
 
 	for (uint8_t i = 0; i < sbank->boxCount; i++)
 	{
-		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE, 0x21, 32);
+		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE, 0x21, POKEMON_LIST_MAX_COUNT);
 	}
 }
 

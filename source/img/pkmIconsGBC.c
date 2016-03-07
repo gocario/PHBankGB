@@ -5,7 +5,7 @@ const struct {
   unsigned int 	 height;
   unsigned int 	 bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
   unsigned char	 pixel_data[256 * 304 * 4 + 1];
-} pkmIconsGB_img = {
+} pkmIconsGBC_img = {
   256, 304, 4,
   "\377\377\377\0\377\377\377\0\377\377\377\0\377\377\377\0\0\0\0\0\0\0\0\0"
   "\370\370\370\377\200p\232\377\200p\232\377\370\370\370\377\200p\232\377\377"
