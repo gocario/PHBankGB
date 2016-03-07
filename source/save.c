@@ -219,12 +219,10 @@ static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList
 
 	printf("List %u/%u (x%u)\n", pkmList->count, pkmList->capacity, pkmList->size);
 
-	for (; i < pkmList->count; i++)
-		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
 	for (; i < pkmList->capacity; i++)
-		memset(&pkmList->slots[i], 0, sizeof(SAV_Pokemon));
-
-
+		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
+	// for (; i < pkmList->capacity; i++)
+	// 	memset(&pkmList->slots[i], 0, sizeof(SAV_Pokemon));
 }
 
 /**
@@ -239,7 +237,7 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
 
 	printf("List %u/%u (%u)\n", pkmList->size, pkmList->count, pkmList->capacity);
 
-	save[0] = pkmList->count;
+	save[listOffset] = pkmList->count;
 
 	for (; i < pkmList->capacity; i++)
 		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
@@ -386,28 +384,25 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 {
 	for (uint8_t iB = 0; iB < sgame->boxCount; iB++)
 	{
-		// TODO: memalign the Pokémon in the list to avoid empty slot amongst occupied slots.
-
 		// Iterate to find the empty slots
 		for (uint8_t iP = 0, iPmin = 0; iP < sgame->boxes[iB].capacity; iP++)
 		{
 			// If looking for the next empty slot
 			if (iPmin == 0)
 			{
-				printf("Looking for empty slot (%u) -> %03u (%03u)\n", iP, sgame->boxes[iB].slots[iP].species, save[0x4001+iP]);
 				if (saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
 				{
-					printf("New empty slot (%u)\n", iP);
 					iPmin = iP+1;
 				}
 			}
 			// If looking for the next occupied slot
 			else
 			{
-				printf("Looking for occupied slot (%u) -> %03u (%03u)\n", iP, sgame->boxes[iB].slots[iP].species, save[0x4001+iP]);
 				if (!saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
 				{
-					printf("New occupied slot (%u)\n", iP);
+					printf("Moving %03u -> %03u",
+						sgame->boxes[iB].slots[iP].nationalDex,
+						sgame->boxes[iB].slots[iPmin-1].nationalDex);
 					_saveMovePkm(&sgame->boxes[iB].slots[iP], &sgame->boxes[iB].slots[iPmin-1]);
 					iP = iPmin-1;
 					iPmin = 0;
@@ -421,6 +416,10 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 		{
 			if (!saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
 				sgame->boxes[iB].count++;
+
+			// Might be useless
+			if (sgame->boxes[iB].slots[iP].species == 0x00)
+				sgame->boxes[iB].slots[iP].species = 0xFF;
 		}
 
 		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < 6 ?  0 : 0x5B4) + iB * BOX_SIZE));

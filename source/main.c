@@ -2,6 +2,7 @@
 #include <sf2d.h>
 #include <stdio.h>
 
+#include "key.h"
 #include "gfx.h"
 #include "font.h"
 #include "save.h"
@@ -29,12 +30,14 @@ int main(void)
 
 		boxViewerUpdate();
 
-		if (hidKeysDown() & KEY_B) break;
+		if (hidKeysDown() & KEY_START) break;
 		
 		boxViewerDraw();
 	}
 
 	saveExit();
+
+	waitKey(KEY_TOUCH);
 
 	fontExit();
 	gfxFree();

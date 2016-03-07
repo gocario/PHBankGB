@@ -175,6 +175,11 @@ void boxViewerUpdate(void)
 			{
 				boxSelectMovePokemon();
 			}
+
+			if (kDown & KEY_B)
+			{
+				boxCancelMovePokemon();
+			}
 		}
 
 		if (kDown & KEY_Y)
@@ -238,7 +243,7 @@ static void boxDrawBox(CursorInbox* cursorin, int16_t x, int16_t y)
 
 static void boxDrawPokemon(SAV_Pokemon* pkm, int16_t x, int16_t y)
 {
-	if (pkm->nationalDex == 0) return;
+	if (saveIsPkmEmpty(pkm)) return;
 
 	gfxDrawPokemonIcon(x, y, gfxGetPokemonIcon(pkm->nationalDex), (pkm == cursor.vPkm && (osGetTime() / 500) % 2 ? PKM_ICON_FRAME_1 : PKM_ICON_FRAME_0));
 }
