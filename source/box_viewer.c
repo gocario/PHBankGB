@@ -245,7 +245,7 @@ static void boxDrawPokemon(SAV_Pokemon* pkm, int16_t x, int16_t y)
 {
 	if (saveIsPkmEmpty(pkm)) return;
 
-	gfxDrawPokemonIcon(x, y, gfxGetPokemonIcon(pkm->nationalDex), (pkm == cursor.vPkm && (osGetTime() / 500) % 2 ? PKM_ICON_FRAME_1 : PKM_ICON_FRAME_0));
+	gfxDrawPokemonIcon(x, y, pkm->nationalDex, (pkm == cursor.vPkm && (osGetTime() / 500) % 2 ? GFX_FRAME_1 : GFX_FRAME_0));
 }
 
 static void boxSelectViewBox(void)

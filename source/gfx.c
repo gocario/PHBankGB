@@ -1,6 +1,8 @@
 #include "gfx.h"
 #include "font.h"
 
+#define PKM_PER_ROW (8)
+
 typedef const struct {
 	unsigned int width;
 	unsigned int height;
@@ -8,18 +10,18 @@ typedef const struct {
 	unsigned char pixel_data[];
 } RAW_img;
 
-extern RAW_img pkmIcons_img;
+extern RAW_img pkmIconsGB_img;
 
-sf2d_texture* pkmIcons;
+sf2d_texture* pkmIconsGB;
 
 void gfxCreate(void)
 {
-	pkmIcons = sf2d_create_texture_mem_RGBA8(pkmIcons_img.pixel_data, pkmIcons_img.width, pkmIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	pkmIconsGB = sf2d_create_texture_mem_RGBA8(pkmIconsGB_img.pixel_data, pkmIconsGB_img.width, pkmIconsGB_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 }
 
 void gfxFree(void)
 {
-	sf2d_free_texture(pkmIcons);
+	sf2d_free_texture(pkmIconsGB);
 }
 
 GFX_PkmIcon gfxGetPokemonIcon(uint8_t species)
@@ -202,9 +204,11 @@ GFX_PkmIcon gfxGetPokemonIcon(uint8_t species)
 	}
 }
 
-void gfxDrawPokemonIcon(int16_t x, int16_t y, GFX_PkmIcon icon, GFX_PkmIcon_Frame frame)
+void gfxDrawPokemonIcon(int16_t x, int16_t y, GFX_Species icon, GFX_Frame frame)
 {
-	sf2d_draw_texture_part(pkmIcons, x, y, 16 * (frame + (icon / 5) * 2), 16 * (icon % 5), 16, 16);
+	if (icon > SPECIES_MEW) icon = SPECIES_MISSINGNO;
+
+	sf2d_draw_texture_part(pkmIconsGB, x, y, 16 * (frame + (icon % PKM_PER_ROW) * 2), 16 * (icon / PKM_PER_ROW), 16, 16);
 }
 
 void gfxDrawPanel(int16_t x, int16_t y, uint8_t row, uint8_t col)
