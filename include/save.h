@@ -3,6 +3,7 @@
 #include "font.h"
 
 #define SAVE_SIZE (0x8000) // 0x7A4C
+#define BANK_SIZE (0x5900) // 0x58A8
 #define BOX_SIZE (0x462)
 #define POKEMON_LIST_MAX_COUNT (30) // Party: 6 | Box: 20 | BoxJP: 30
 #define GAME_BOX_MAX_COUNT (12) // 12 | JP: 8
@@ -133,11 +134,14 @@ typedef struct
 /// 
 typedef struct
 {
+	uint32_t magic;
+	uint32_t version;
 	uint8_t boxCount;
 	SAV_PokemonList boxes[BANK_BOX_MAX_COUNT];
 } SAV_Bank;
 
 extern uint8_t save[];
+extern uint8_t bank[];
 extern SAV_Game sgame;
 extern SAV_Bank sbank;
 
@@ -212,22 +216,25 @@ const char8_t* saveGetTrainer(void);
  * @brief Reads a save file to a save buffer.
  * @param[out] save The savedata buffer.
  * @param[in] path The path of the save file.
+ * @return The total of written bytes.
  */
-void saveReadFile(uint8_t* save, const char* path);
+uint16_t saveReadFile(uint8_t* save, const char* path);
 
 /**
  * @brief Writes a save buffer to a save file.
  * @param[in] save The savedata buffer.
  * @param[in] path The path of the save file.
+ * @return The total of read bytes.
  */
-void saveWriteFile(const uint8_t* save, const char* path);
+uint16_t saveWriteFile(const uint8_t* save, const char* path);
 
 /**
  * @brief Reads a save buffer to a save struct.
  * @param[in] save The savedata buffer.
- * @param[in] path The path of the save file.
+ * @param[out] sgame The path of the save file.
+ * @param bytesRead The total of read bytes.
  */
-void saveReadData(const uint8_t* save, SAV_Game* sgame);
+void saveReadData(const uint8_t* save, SAV_Game* sgame, uint16_t bytesRead);
 
 /**
  * @brief Writes a save struct to a save buffer.
@@ -241,3 +248,34 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame);
  * @param[in/out] save The savedata buffer.
  */
 void saveFixChecksum(uint8_t* save);
+
+/**
+ * @brief Reads a bank file to a bank buffer.
+ * @param[out] bank The bankdata buffer.
+ * @param[in] path The path of the bank file.
+ * @return The total of read bytes.
+ */
+uint16_t bankReadFile(uint8_t* bank, const char* path);
+
+/**
+ * @brief Writes a bank buffer to a bank file.
+ * @param[in] bank The bankdata buffer.
+ * @param[in] path The path of the bank file.
+ * @return The total of written bytes.
+ */
+uint16_t bankWriteFile(const uint8_t* bank, const char* path);
+
+/**
+ * @brief Reads a bank buffer to a bank struct.
+ * @param[in] bank The bankdata buffer.
+ * @param[in] path The path of the bank file.
+ * @param bytesRead The total of read bytes.
+ */
+void bankReadData(uint8_t* bank, SAV_Bank* sbank, uint16_t bytesRead);
+
+/**
+ * @brief Writes a bank struct to a bank buffer.
+ * @param[in/out] bank The bankdata buffer.
+ * @param[in] path The path of the bank file.
+ */
+void bankWriteData(uint8_t* bank, SAV_Bank* sbank);

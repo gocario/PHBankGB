@@ -1,4 +1,5 @@
 #include "save.h"
+#include "bank.h"
 #include "pokedex.h"
 
 #include <stdio.h>
@@ -8,6 +9,7 @@
 /// 
 typedef enum
 {
+	/* Game */
 	OFFSET_PARTY = 0x2F2C,		///< Party Pokémon list
 	OFFSET_CURRENT = 0x30C0,	///< Current Box Pokémon list
 	OFFSET_BOX_1 = 0x4000,		///< Box 1 Pokémon list
@@ -22,6 +24,9 @@ typedef enum
 	OFFSET_BOX_10 = 0x6D26,		///< Box 10 Pokémon list
 	OFFSET_BOX_11 = 0x7188,		///< Box 11 Pokémon list
 	OFFSET_BOX_12 = 0x75EA,		///< Box 12 Pokémon list
+
+	/* Bank */
+	OFFSET_BBOX_1 = 0x100,		///< Bank box 1 Pokémon list
 } SAV_PokemonListOffset;
 
 const uint16_t SaveConst__sizeSave = SAVE_SIZE;
@@ -30,19 +35,23 @@ const uint16_t SaveConst__offsetPokedexSeen = 0x25B6;
 const uint16_t SaveConst__offsetChecksum = 0x3523;
 
 uint8_t save[SAVE_SIZE];
+uint8_t bank[BANK_SIZE];
 SAV_Game sgame;
 SAV_Bank sbank;
 
 void saveInitialize(void)
 {
-	saveReadFile(save, "/rey_pokered.sav");
-	saveReadData(save, &sgame);
+	saveReadData(save, &sgame, saveReadFile(save, "/rey_pokered.sav"));
+	bankReadData(bank, &sbank, bankReadFile(bank, "/bankgb"));
 }
 
 void saveExit(void)
 {
 	saveWriteData(save, &sgame);
 	saveWriteFile(save, "/rey_pokered_out.sav");
+
+	bankWriteData(bank, &sbank);
+	bankWriteFile(bank, "/bankgb");
 }
 
 /**
@@ -217,7 +226,7 @@ static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList
 	pkmList->size = size;
 	pkmList->capacity = capacity;
 
-	printf("List %u/%u (x%u)\n", pkmList->count, pkmList->capacity, pkmList->size);
+	// printf("List %u/%u (x%u)\n", pkmList->count, pkmList->capacity, pkmList->size);
 
 	for (; i < pkmList->capacity; i++)
 		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
@@ -235,7 +244,7 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
 {
 	uint8_t i = 0;
 
-	printf("List %u/%u (%u)\n", pkmList->size, pkmList->count, pkmList->capacity);
+	// printf("List %u/%u (%u)\n", pkmList->size, pkmList->count, pkmList->capacity);
 
 	save[listOffset] = pkmList->count;
 
@@ -260,7 +269,7 @@ SAV_PokemonList* gameGetBox(uint8_t box)
 
 SAV_PokemonList* bankGetBox(uint8_t box)
 {
-	return &sgame.boxes[box];
+	return &sbank.boxes[box];
 }
 
 SAV_PokemonList* saveGetBox(uint8_t box, bool inBank)
@@ -331,7 +340,7 @@ const char8_t* saveGetTrainer(void)
 	return save + 0x2598;
 }
 
-void saveReadFile(uint8_t* save, const char* path)
+uint16_t saveReadFile(uint8_t* save, const char* path)
 {
 	uint16_t bytesRead = 0;
 
@@ -348,9 +357,11 @@ void saveReadFile(uint8_t* save, const char* path)
 
 		fclose(fp);
 	}
+
+	return bytesRead;
 }
 
-void saveWriteFile(const uint8_t* save, const char* path)
+uint16_t saveWriteFile(const uint8_t* save, const char* path)
 {
 	uint16_t bytesWritten = 0;
 
@@ -367,9 +378,11 @@ void saveWriteFile(const uint8_t* save, const char* path)
 
 		fclose(fp);
 	}
+
+	return bytesWritten;
 }
 
-void saveReadData(const uint8_t* save, SAV_Game* sgame)
+void saveReadData(const uint8_t* save, SAV_Game* sgame, uint16_t bytesRead)
 {
 	sgame->boxCount = 12;
 
@@ -377,7 +390,6 @@ void saveReadData(const uint8_t* save, SAV_Game* sgame)
 	{
 		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < 6 ?  0 : 0x5B4) + i * BOX_SIZE), 0x21, 20);
 	}
-
 }
 
 void saveWriteData(uint8_t* save, SAV_Game* sgame)
@@ -400,7 +412,7 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 			{
 				if (!saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
 				{
-					printf("Moving %03u -> %03u",
+					printf("Moving %03u -> %03u\n",
 						sgame->boxes[iB].slots[iP].nationalDex,
 						sgame->boxes[iB].slots[iPmin-1].nationalDex);
 					_saveMovePkm(&sgame->boxes[iB].slots[iP], &sgame->boxes[iB].slots[iPmin-1]);
@@ -424,6 +436,8 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 
 		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < 6 ?  0 : 0x5B4) + iB * BOX_SIZE));
 	}
+
+	saveFixChecksum(save);
 }
 
 void saveFixChecksum(uint8_t* save)
@@ -436,4 +450,121 @@ void saveFixChecksum(uint8_t* save)
 	}
 
 	save[0x3523] = ~chk;
+}
+
+uint16_t bankReadFile(uint8_t* bank, const char* path)
+{
+	uint16_t bytesRead = 0;
+
+	printf("Opening bank file...\n");
+	FILE* fp = fopen(path, "rb");
+	if (fp)
+	{
+		printf("Reading bank file...");
+		bytesRead = fread(bank, 1, BANK_SIZE, fp);
+
+		if (ferror(fp)) printf(" ERROR\n");
+		else printf(" OK\n");
+		printf("  Read %d/%d bytes\n", bytesRead, BANK_SIZE);
+
+		if (!ferror(fp))
+		{
+			memset(bank + bytesRead, 0, BANK_SIZE - bytesRead);
+			bankUpdate(bank, bytesRead);
+		}
+
+		fclose(fp);
+	}
+	else
+	{
+		printf(" Creating...");
+		memset(bank, 0, BANK_SIZE);
+
+		printf(" OK\n  Created %d bytes\n", BANK_SIZE);
+	}
+
+	return bytesRead;
+}
+
+uint16_t bankWriteFile(const uint8_t* bank, const char* path)
+{
+	uint16_t bytesWritten = 0;
+
+	printf("Opening bank file...\n");
+	FILE* fp = fopen(path, "wb");
+	if (fp)
+	{
+		printf("Writing bank file...");
+		bytesWritten = fwrite(bank, 1, BANK_SIZE, fp);
+
+		if (ferror(fp)) printf(" ERROR\n");
+		else printf(" OK\n");
+		printf("  Written %d/%d bytes\n", bytesWritten, BANK_SIZE);
+
+		fclose(fp);
+
+	}
+
+	return bytesWritten;
+}
+
+void bankReadData(uint8_t* bank, SAV_Bank* sbank, uint16_t bytesRead)
+{
+	sbank->magic = *(uint32_t*)(bank + 0x00);
+	sbank->version = *(uint32_t*)(bank + 0x04);
+	sbank->boxCount = BANK_BOX_MAX_COUNT;
+
+	for (uint8_t i = 0; i < sbank->boxCount; i++)
+	{
+		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE, 0x21, 32);
+	}
+}
+
+void bankWriteData(uint8_t* bank, SAV_Bank* sbank)
+{
+	*(uint32_t*)(bank + 0x00) = sbank->magic;
+	*(uint32_t*)(bank + 0x04) = sbank->version;
+
+	for (uint8_t iB = 0; iB < sbank->boxCount; iB++)
+	{
+		// Iterate to find the empty slots
+		for (uint8_t iP = 0, iPmin = 0; iP < sbank->boxes[iB].capacity; iP++)
+		{
+			// If looking for the next empty slot
+			if (iPmin == 0)
+			{
+				if (saveIsPkmEmpty(&sbank->boxes[iB].slots[iP]))
+				{
+					iPmin = iP+1;
+				}
+			}
+			// If looking for the next occupied slot
+			else
+			{
+				if (!saveIsPkmEmpty(&sbank->boxes[iB].slots[iP]))
+				{
+					printf("Moving %03u -> %03u\n",
+						sbank->boxes[iB].slots[iP].nationalDex,
+						sbank->boxes[iB].slots[iPmin-1].nationalDex);
+					_saveMovePkm(&sbank->boxes[iB].slots[iP], &sbank->boxes[iB].slots[iPmin-1]);
+					iP = iPmin-1;
+					iPmin = 0;
+				}
+			}
+		}
+
+		// Count the Pokémon
+		sbank->boxes[iB].count = 0;
+		for (uint8_t iP = 0; iP < sbank->boxes[iB].capacity; iP++)
+		{
+			if (!saveIsPkmEmpty(&sbank->boxes[iB].slots[iP]))
+				sbank->boxes[iB].count++;
+
+			// Might be useless
+			if (sbank->boxes[iB].slots[iP].species == 0x00)
+				sbank->boxes[iB].slots[iP].species = 0xFF;
+		}
+
+		saveInjectPokemonList(bank, &sbank->boxes[iB], OFFSET_BBOX_1 + iB * BOX_SIZE);
+	}
 }

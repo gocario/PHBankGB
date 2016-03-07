@@ -125,8 +125,8 @@ void boxViewerUpdate(void)
 			cursor.box->row += rowMod;
 			cursor.box->col += colMod;
 
-			if (cursor.box->box < 0) cursor.box->box = sgame.boxCount-1;
-			else if (cursor.box->box > sgame.boxCount-1) cursor.box->box = 0;
+			if (cursor.box->box < 0) cursor.box->box = (cursor.box->inBank ? sbank.boxCount : sgame.boxCount)-1;
+			else if (cursor.box->box > (cursor.box->inBank ? sbank.boxCount : sgame.boxCount)-1) cursor.box->box = 0;
 
 			if (cursor.box->col < 0)
 			{
@@ -238,14 +238,13 @@ static void boxDrawBox(CursorInbox* cursorin, int16_t x, int16_t y)
 	}
 
 	if (cursorin == cursor.box) gfxDrawFullArrow(x + 8 + 32 * cursorin->col, y + 48 + 24 * cursorin->row);
-	else gfxDrawEmptyArrow(x + 8 + 32 * cursorin->col, y + 48 + 24 * cursorin->row);
 }
 
 static void boxDrawPokemon(SAV_Pokemon* pkm, int16_t x, int16_t y)
 {
 	if (saveIsPkmEmpty(pkm)) return;
 
-	gfxDrawPokemonIcon(x, y, pkm->nationalDex, (pkm == cursor.vPkm && (osGetTime() / 500) % 2 ? GFX_FRAME_1 : GFX_FRAME_0));
+	gfxDrawPokemonIcon(x, y, pkm->nationalDex, (pkm == cursor.vPkm && (osGetTime() / 250) % 2 ? GFX_FRAME_1 : GFX_FRAME_0));
 }
 
 static void boxSelectViewBox(void)
