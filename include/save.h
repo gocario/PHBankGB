@@ -3,8 +3,8 @@
 #include "font.h"
 
 #define SAVE_SIZE (0x8000) // 0x7A4C
-#define BANK_SIZE (0x5900) // 0x58A8
-#define BOX_SIZE (0x462)
+#define BANK_SIZE (0x8E00) // 0x8D28
+#define BOX_SIZE(c,s) (2+c*(s+23)) // (1+c+1+c*s+c*11+c*11)
 #define POKEMON_LIST_MAX_COUNT (32) // Party: 6 | Box: 20 | BoxJP: 30 | BoxBK: 32
 #define GAME_BOX_MAX_COUNT (12) // 12 | JP: 8
 #define BANK_BOX_MAX_COUNT (20) // 20

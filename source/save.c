@@ -260,18 +260,14 @@ static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t ind
  */
 static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList, SAV_PokemonListOffset listOffset, uint8_t size, uint8_t capacity)
 {
-	uint8_t i = 0;
-
 	pkmList->count = save[listOffset];
 	pkmList->size = size;
 	pkmList->capacity = capacity;
 
 	// printf("List %u/%u (x%u)\n", pkmList->count, pkmList->capacity, pkmList->size);
 
-	for (; i < pkmList->capacity; i++)
+	for (uint8_t i = 0; i < pkmList->capacity; i++)
 		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
-	// for (; i < pkmList->capacity; i++)
-	// 	memset(&pkmList->slots[i], 0, sizeof(SAV_Pokemon));
 }
 
 /**
@@ -282,13 +278,11 @@ static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList
  */
 static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList, SAV_PokemonListOffset listOffset)
 {
-	uint8_t i = 0;
-
 	// printf("List %u/%u (%u)\n", pkmList->size, pkmList->count, pkmList->capacity);
 
 	save[listOffset] = pkmList->count;
 
-	for (; i < pkmList->capacity; i++)
+	for (uint8_t i = 0; i < pkmList->capacity; i++)
 		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
 }
 
@@ -432,7 +426,7 @@ void saveReadData(const uint8_t* save, SAV_Game* sgame, uint16_t bytesRead)
 		sgame->boxes[i].index = i;
 		sprintf(title, "Box %u", i+1);
 		fontConvertString(sgame->boxes[i].title, title);
-		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < 6 ?  0 : 0x5B4) + i * BOX_SIZE), 0x21, 20);
+		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < 6 ?  0 : 0x5B4) + i * BOX_SIZE(20,0x21)), 0x21, 20); // TODO: Adapt for foreign games
 	}
 }
 
@@ -478,7 +472,7 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 				sgame->boxes[iB].slots[iP].species = 0xFF;
 		}
 
-		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < 6 ?  0 : 0x5B4) + iB * BOX_SIZE));
+		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < 6 ?  0 : 0x5B4) + iB * BOX_SIZE(20,0x21))); // TODO: Adapt for foreign games
 	}
 
 	saveFixChecksum(save);
@@ -523,6 +517,7 @@ uint16_t bankReadFile(uint8_t* bank, const char* path)
 	{
 		printf(" Creating...");
 		memset(bank, 0, BANK_SIZE);
+		bankUpdate(bank, BANK_SIZE);
 
 		printf(" OK\n  Created %d bytes\n", BANK_SIZE);
 	}
@@ -564,7 +559,7 @@ void bankReadData(uint8_t* bank, SAV_Bank* sbank, uint16_t bytesRead)
 		sbank->boxes[i].index = i;
 		sprintf(title, "Box %u", i+1);
 		fontConvertString(sbank->boxes[i].title, title);
-		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE, 0x21, POKEMON_LIST_MAX_COUNT);
+		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE(32,0x21), 0x21, POKEMON_LIST_MAX_COUNT);
 	}
 }
 
@@ -613,6 +608,6 @@ void bankWriteData(uint8_t* bank, SAV_Bank* sbank)
 				sbank->boxes[iB].slots[iP].species = 0xFF;
 		}
 
-		saveInjectPokemonList(bank, &sbank->boxes[iB], OFFSET_BBOX_1 + iB * BOX_SIZE);
+		saveInjectPokemonList(bank, &sbank->boxes[iB], OFFSET_BBOX_1 + iB * BOX_SIZE(32,0x21));
 	}
 }
