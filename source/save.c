@@ -2,7 +2,9 @@
 #include "bank.h"
 #include "pkdir.h"
 #include "pokedex.h"
+#include "fs.h"
 
+#include <3ds/result.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,7 +45,12 @@ SAV_Bank sbank;
 
 Result saveLoad(void)
 {
-	saveReadData(save, &sgame, saveReadFile(save, ROOT_FOLDER SAVEGB_FILE));
+	Result ret;
+
+	ret = saveReadFile(save, ROOT_FOLDER SAVEGB_FILE);
+	if (R_FAILED(ret)) return ret;
+
+	saveReadData(save, &sgame);
 	bankReadData(bank, &sbank, bankReadFile(bank, BANK_FOLDER BANKGB_FILE));
 	
 	return (true && true ? 0 : -5);
@@ -52,8 +59,7 @@ Result saveLoad(void)
 void saveExit(void)
 {
 	saveWriteData(save, &sgame);
-	saveWriteFile(save, "/rey_pokered_out.sav");
-	// saveWriteFile(save, ROOT_FOLDER SAVEGB_FILE); // TODO
+	saveWriteFile(save, ROOT_FOLDER SAVEGB_FILE);
 
 	mkdir(BASE_FOLDER, 0700);
 	mkdir(BANK_FOLDER, 0700);
@@ -374,49 +380,40 @@ const char8_t* saveGetTrainer(void)
 	return save + 0x2598;
 }
 
-uint16_t saveReadFile(uint8_t* save, const char* path)
+Result saveReadFile(uint8_t* save, const char* path)
 {
-	uint16_t bytesRead = 0;
+	Result ret;
+	uint32_t bytesRead = 0;
 
-	printf("Opening save file...\n");
-	FILE* fp = fopen(path, "rb");
-	if (fp)
-	{
-		printf("Reading save file...");
-		bytesRead = fread(save, 1, SAVE_SIZE, fp);
+	printf("Reading save file...");
+	ret = FS_ReadFile(path, save, &saveArchive, SAVE_SIZE, &bytesRead);
 
-		if (ferror(fp)) printf(" ERROR\n");
-		else printf(" OK\n");
-		printf("  Read %d/%d bytes\n", bytesRead, SAVE_SIZE);
+	if (R_FAILED(ret)) printf(" ERROR\n");
+	else printf(" OK\n");
+	printf("  Read %ld/%d bytes\n", bytesRead, SAVE_SIZE);
 
-		fclose(fp);
-	}
-
-	return bytesRead;
+	return ret;
 }
 
-uint16_t saveWriteFile(const uint8_t* save, const char* path)
+Result saveWriteFile(const uint8_t* save, const char* path)
 {
-	uint16_t bytesWritten = 0;
+	Result ret;
+	uint32_t bytesWritten = 0;
 
-	printf("Opening save file...\n");
-	FILE* fp = fopen(path, "wb");
-	if (fp)
-	{
-		printf("Writing save file...");
-		bytesWritten = fwrite(save, 1, SAVE_SIZE, fp);
+	printf("Deleting old save file...");
+	ret = FS_DeleteFile(path, &saveArchive);
+	if (R_FAILED(ret)) printf(" ERROR\n");
+	else printf(" OK\n");
 
-		if (ferror(fp)) printf(" ERROR\n");
-		else printf(" OK\n");
-		printf("  Written %d/%d bytes\n", bytesWritten, SAVE_SIZE);
-
-		fclose(fp);
-	}
+	printf("Writing save file...");
+	ret = FS_WriteFile(path, save, SAVE_SIZE, &saveArchive, &bytesWritten);
+	if (R_FAILED(ret)) printf(" ERROR\n");
+	else printf(" OK\n  Written %ld/%d bytes\n", bytesWritten, SAVE_SIZE);
 
 	return bytesWritten;
 }
 
-void saveReadData(const uint8_t* save, SAV_Game* sgame, uint16_t bytesRead)
+void saveReadData(const uint8_t* save, SAV_Game* sgame)
 {
 	char title[11];
 	sgame->boxCount = 12;

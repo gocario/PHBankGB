@@ -35,6 +35,10 @@ Result gfxLoadFrame(uint64_t titleid)
 void gfxFree(void)
 {
 	sf2d_free_texture(pkmIconsGBC);
+}
+
+void gfxFreeFrame(void)
+{
 	sf2d_free_texture(topFrame);
 }
 
@@ -50,32 +54,32 @@ void gfxDrawFrame(int16_t x, int16_t y)
 	sf2d_draw_texture(topFrame, x, y);
 }
 
-void gfxDrawPanel(int16_t x, int16_t y, uint8_t row, uint8_t col)
+void gfxDrawPanel(int16_t x, int16_t y, uint8_t w, uint8_t h)
 {
 	// Top left
 	fontDrawChar8(x, y, 0x79);
 
 	// Top right
-	fontDrawChar8(x + (col + 1) * 8, y, 0x7B);
+	fontDrawChar8(x + (w + 1) * 8, y, 0x7B);
 
 	// Bottom left
-	fontDrawChar8(x, y + (row + 1) * 8, 0x7D);
+	fontDrawChar8(x, y + (h + 1) * 8, 0x7D);
 
 	// Bottom right
-	fontDrawChar8(x + (col + 1) * 8, y + (row + 1) * 8, 0x7E);
+	fontDrawChar8(x + (w + 1) * 8, y + (h + 1) * 8, 0x7E);
 
 	// Horizontal
-	for (uint8_t xcol = 0; xcol < col; xcol++)
+	for (uint8_t xw = 0; xw < w; xw++)
 	{
-		fontDrawChar8(x + (xcol + 1) * 8, y, 0x7A);
-		fontDrawChar8(x + (xcol + 1) * 8, y + (row + 1) * 8, 0x7A);
+		fontDrawChar8(x + (xw + 1) * 8, y, 0x7A);
+		fontDrawChar8(x + (xw + 1) * 8, y + (h + 1) * 8, 0x7A);
 	}
 
 	// Vertical
-	for (uint8_t yrow = 0; yrow < row; yrow++)
+	for (uint8_t yh = 0; yh < h; yh++)
 	{
-		fontDrawChar8(x, y + (yrow + 1) * 8, 0x7C);
-		fontDrawChar8(x + (col + 1) * 8, y + (yrow + 1) * 8, 0x7C);
+		fontDrawChar8(x, y + (yh + 1) * 8, 0x7C);
+		fontDrawChar8(x + (w + 1) * 8, y + (yh + 1) * 8, 0x7C);
 	}
 }
 

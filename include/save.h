@@ -237,25 +237,22 @@ const char8_t* saveGetTrainer(void);
  * @brief Reads a save file to a save buffer.
  * @param[out] save The savedata buffer.
  * @param[in] path The path of the save file.
- * @return The total of written bytes.
  */
-uint16_t saveReadFile(uint8_t* save, const char* path);
+Result saveReadFile(uint8_t* save, const char* path);
 
 /**
  * @brief Writes a save buffer to a save file.
  * @param[in] save The savedata buffer.
  * @param[in] path The path of the save file.
- * @return The total of read bytes.
  */
-uint16_t saveWriteFile(const uint8_t* save, const char* path);
+Result saveWriteFile(const uint8_t* save, const char* path);
 
 /**
  * @brief Reads a save buffer to a save struct.
  * @param[in] save The savedata buffer.
  * @param[out] sgame The path of the save file.
- * @param bytesRead The total of read bytes.
  */
-void saveReadData(const uint8_t* save, SAV_Game* sgame, uint16_t bytesRead);
+void saveReadData(const uint8_t* save, SAV_Game* sgame);
 
 /**
  * @brief Writes a save struct to a save buffer.

@@ -198,6 +198,11 @@ Result gfxLoadFrame(uint64_t titleid);
 void gfxFree(void);
 
 /**
+ * @brief Frees the gb frame of the game version.
+ */
+void gfxFreeFrame(void);
+
+/**
  * @brief Draws a Pokémon icon.
  * @param x The x position.
  * @param y The y position.
@@ -214,7 +219,7 @@ void gfxDrawFrame(int16_t x, int16_t y);
 /**
  * @todo
  */
-void gfxDrawPanel(int16_t x, int16_t y, uint8_t row, uint8_t col);
+void gfxDrawPanel(int16_t x, int16_t y, uint8_t w, uint8_t h);
 
 /**
  * @todo

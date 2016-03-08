@@ -38,7 +38,7 @@ int main(void)
 	}
 
 #ifdef __cia
-	while (!error)// && TS_Loop())
+	while (!error && TS_Loop())
 	{
 
 	ret = gfxLoadFrame(titleEntry.titleid);
@@ -48,9 +48,19 @@ int main(void)
 		error |= BIT(5);
 	}
 
-	// ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
+	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
 #else
-	// ret = FS_Init();
+	while (aptMainLoop())
+	{
+
+	ret = gfxLoadFrame(0x0004000000171800);
+	if (R_FAILED(ret))
+	{
+		// Graphics
+		error |= BIT(5);
+	}
+
+	ret = FS_Init();
 #endif
 	if (R_FAILED(ret))
 	{
@@ -85,8 +95,12 @@ int main(void)
 	saveExit();
 
 #ifdef __cia
+	gfxFreeFrame();
 	} // while (aptMainLoop())
-	gfxFree();
+	FSCIA_Exit();
+#else
+	gfxFreeFrame();
+	FS_Exit();
 #endif
 
 	if (error)
@@ -102,7 +116,14 @@ int main(void)
 		waitKey(KEY_ANY);
 	}
 
+#ifndef __cia
+	printf("\n\n");
+	}
+#endif
+
+	gfxFree();
 	fontFree();
+
 	sf2d_fini();
 	return 0;
 }

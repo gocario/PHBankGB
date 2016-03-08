@@ -3,6 +3,7 @@
 #include "key.h"
 #include "gfx.h"
 #include "font.h"
+#include "data.h"
 #include "save.h"
 
 #include <stdio.h>
@@ -205,6 +206,19 @@ void boxViewerUpdate(void)
 static void boxViewerDrawTop(void)
 {
 	gfxDrawFrame(0, 0);
+	gfxDrawPanel(48 + 8, 40 + 64, 16, 10);
+
+	if (cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm))
+	{
+		fontDrawString8(64, 112, dataText(TEXT_HP));
+		fontDrawString8(64, 128, dataText(TEXT_ATTACK));
+		fontDrawString8(64, 144, dataText(TEXT_DEFENSE));
+		fontDrawString8(64, 160, dataText(TEXT_SPEED));
+		fontDrawString8(64, 176, dataText(TEXT_SPECIAL));
+
+		// fontDrawString8(200, 50, cursor.vPkm->nameOT);
+		// fontDrawString8(200, 70, cursor.vPkm->nameNK);
+	}
 }
 
 static void boxViewerDrawBottom(void)
@@ -213,12 +227,6 @@ static void boxViewerDrawBottom(void)
 
 	boxDrawBox(&cursor.pc, 0, 0);
 	boxDrawBox(&cursor.bk, 176, 0);
-
-	if (cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm))
-	{
-		// fontDrawString8(200, 50, cursor.vPkm->nameOT);
-		// fontDrawString8(200, 70, cursor.vPkm->nameNK);
-	}
 }
 
 void boxViewerDraw(void)
@@ -234,8 +242,8 @@ void boxViewerDraw(void)
 
 static void boxDrawBox(CursorInbox* cursorin, int16_t x, int16_t y)
 {
-	gfxDrawPanel(x, y, 2, 16);
-	gfxDrawPanel(x, y + 32, 24, 16);
+	gfxDrawPanel(x, y, 16, 2);
+	gfxDrawPanel(x, y + 32, 16, 24);
 
 	fontDrawString8(x + 32, y + 12, cursorin->vBox->title);
 

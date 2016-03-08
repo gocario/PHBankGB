@@ -49,6 +49,13 @@ Result FS_ReadFile(const char* path, void* dst, const FS_Archive* archive, u64 m
 Result FS_WriteFile(const char* path, const void* src, u64 size, const FS_Archive* archive, u32* bytesWritten);
 
 /**
+ * @brief Deletes a file (path).
+ * @param path The path of the file to delete.
+ * @param archive The archive where the file is located.
+ */
+Result FS_DeleteFile(const char* path, const FS_Archive* archive);
+
+/**
  * @brief Commits an archive.
  * @param The archive to commit.
  */
