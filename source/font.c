@@ -160,3 +160,13 @@ uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str)
 	}
 	return x - o_x;
 }
+
+uint16_t fontDrawFromRightUInt32(int16_t x, int16_t y, uint32_t v)
+{
+	uint16_t o_x = x;
+	for (uint32_t i = 1; i < 100000 && (i == 1 || v/i != 0); i *= 10)
+	{
+		x -= fontDrawChar8(x, y, 0xF6 + ((v / i) % 10));
+	}
+	return x - o_x;
+}

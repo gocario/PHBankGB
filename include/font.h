@@ -40,3 +40,11 @@ int8_t fontDrawChar8(int16_t x, int16_t y, char8_t c);
  * @return The width of the written string.
  */
 uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str8);
+
+/**
+ * @brief Draws an uint32_t number using the glyph sheet from the right.
+ * @param x The x position.
+ * @param y The y position.
+ * @param v The uint32_t number.
+ */
+uint16_t fontDrawFromRightUInt32(int16_t x, int16_t y, uint32_t v);
