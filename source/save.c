@@ -1,5 +1,6 @@
 #include "save.h"
 #include "bank.h"
+#include "pkdir.h"
 #include "pokedex.h"
 
 #include <stdio.h>
@@ -41,8 +42,8 @@ SAV_Bank sbank;
 
 Result saveLoad(void)
 {
-	saveReadData(save, &sgame, saveReadFile(save, "/rey_pokered.sav"));
-	bankReadData(bank, &sbank, bankReadFile(bank, "/bankgb"));
+	saveReadData(save, &sgame, saveReadFile(save, ROOT_FOLDER SAVEGB_FILE));
+	bankReadData(bank, &sbank, bankReadFile(bank, BANK_FOLDER BANKGB_FILE));
 	
 	return (true && true ? 0 : -5);
 }
@@ -51,9 +52,10 @@ void saveExit(void)
 {
 	saveWriteData(save, &sgame);
 	saveWriteFile(save, "/rey_pokered_out.sav");
+	// saveWriteFile(save, ROOT_FOLDER SAVEGB_FILE); // TODO
 
 	bankWriteData(bank, &sbank);
-	bankWriteFile(bank, "/bankgb");
+	bankWriteFile(bank, BANK_FOLDER BANKGB_FILE);
 }
 
 SAV_GameVersion saveGetGameVersion(uint64_t titleid)

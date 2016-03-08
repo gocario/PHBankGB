@@ -6,6 +6,7 @@
 #include <sfil.h>
 
 #define PKM_PER_ROW (8)
+#define ROMFS ROMFS_FOLDER
 
 static sf2d_texture* pkmIconsGBC;
 static sf2d_texture* topFrame;

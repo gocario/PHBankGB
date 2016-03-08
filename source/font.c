@@ -30,7 +30,7 @@ static sf2d_texture* fontGB;
 
 Result fontLoad(void)
 {
-	fontGB = sfil_load_PNG_file(ROMFS "font_gb.png", SF2D_PLACE_RAM);
+	fontGB = sfil_load_PNG_file(ROMFS_FOLDER "font_gb.png", SF2D_PLACE_RAM);
 
 	return (fontGB ? 0 : -5);
 }
