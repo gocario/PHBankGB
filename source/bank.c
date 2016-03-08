@@ -27,8 +27,10 @@ bool bankUpdate(uint8_t* bank, uint16_t bytesRead)
 		printf("\a0x00000000->0x010001A0\n");
 
 		*(uint32_t*)(bank + 0x00) = MakeMagic('B', 'K', 'G', 'B');
-		*(uint32_t*)(bank + 0x04) = version = VERSION;
 		printf("\e"); // It is really needed else it will freeze
+
+		*(uint32_t*)(bank + 0x04) = version = 0x010001A0;
+		*(uint32_t*)(bank + 0x20) = 0x00000100;	///< Box data offset (NEW)
 	}
 
 	// Current version
