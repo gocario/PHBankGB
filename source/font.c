@@ -1,7 +1,9 @@
 #include "font.h"
 #include "save.h"
+#include "pkdir.h"
 
 #include <sf2d.h>
+#include <sfil.h>
 
 #define CHAR_SIZE (8)
 
@@ -22,23 +24,18 @@ enum
 	C_TM = 0x5C,			///< TM
 	C_TRAINER = 0x5D,		///< TRAINER
 	C_ROCKET = 0x5E,		///< ROCKET
-};
-
-extern const struct {
-	unsigned int width;
-	unsigned int height;
-	unsigned int bytes_per_pixel;
-	unsigned char pixel_data[];
-} fontGB_img;
+} FONT_ControlChar;
 
 static sf2d_texture* fontGB;
 
-void fontInit(void)
+Result fontLoad(void)
 {
-	fontGB = sf2d_create_texture_mem_RGBA8(fontGB_img.pixel_data, fontGB_img.width, fontGB_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	fontGB = sfil_load_PNG_file(ROMFS "font_gb.png", SF2D_PLACE_RAM);
+
+	return (fontGB ? 0 : -5);
 }
 
-void fontExit(void)
+void fontFree(void)
 {
 	sf2d_free_texture(fontGB);
 }
@@ -55,6 +52,7 @@ static char8_t fontConvertChar(char c)
 		case 'A' ... 'Z': return 0x80 + (c - 'A');
 		case 'a' ... 'z': return 0xA0 + (c - 'a');
 		case '0' ... '9': return 0xF6 + (c - '0');
+		case ' ': return 0x7F;
 		default: return 0x50;
 	}
 }

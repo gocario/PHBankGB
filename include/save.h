@@ -12,10 +12,11 @@
 /// 
 typedef enum
 {
-	POKEMON_RED,	///< Pokémon Red
-	POKEMON_GREEN,	///< Pokémon Green
-	POKEMON_BLUE,	///< Pokémon Blue
-	POKEMON_YELLOW,	///< Pokémon Yellow
+	NOT_POKEMON = 0,	///< Not Pokémon
+	POKEMON_RED = 1,	///< Pokémon Red
+	POKEMON_GREEN = 2,	///< Pokémon Green
+	POKEMON_BLUE = 3,	///< Pokémon Blue
+	POKEMON_YELLOW = 4,	///< Pokémon Yellow
 } SAV_GameVersion;
 
 /// 
@@ -114,14 +115,16 @@ typedef struct
 /// 
 typedef struct
 {
-	uint8_t size;		///< The size of each elements.
-	uint8_t capacity;	///< The max size of the list (<= POKEMON_LIST_MAX_COUNT).
+	uint8_t count;		///< The count of Pokémon (<= capacity)
 	uint8_t species[POKEMON_LIST_MAX_COUNT];
 	SAV_Pokemon slots[POKEMON_LIST_MAX_COUNT];
+	// OT/NK names are stored in SAV_Pokemon
 
 	// Extra attributes
-	uint8_t count;		///< The count of Pokémon (<= capacity).
-	char8_t title[11];	///< An emulated title box.
+	uint8_t index;		///< The index of the box
+	uint8_t size;		///< The size of each elements
+	uint8_t capacity;	///< The max size of the list (<= POKEMON_LIST_MAX_COUNT)
+	char8_t title[11];	///< An emulated title box
 } SAV_PokemonList;
 
 /// 
@@ -146,14 +149,21 @@ extern SAV_Game sgame;
 extern SAV_Bank sbank;
 
 /**
- * @brief Initializes the save module.
+ * @brief Loads and initializes the save module.
  */
-void saveInitialize(void);
+Result saveLoad(void);
 
 /**
  * @brief Exits the save module.
  */
 void saveExit(void);
+
+/**
+ * @brief Gets the game version of a game.
+ * @param titleid The title id of the game..
+ * @return The game version.
+ */
+SAV_GameVersion saveGetGameVersion(uint64_t titleid);
 
 /**
  * @brief Gets a box from a list.

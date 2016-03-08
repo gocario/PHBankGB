@@ -39,10 +39,12 @@ uint8_t bank[BANK_SIZE];
 SAV_Game sgame;
 SAV_Bank sbank;
 
-void saveInitialize(void)
+Result saveLoad(void)
 {
 	saveReadData(save, &sgame, saveReadFile(save, "/rey_pokered.sav"));
 	bankReadData(bank, &sbank, bankReadFile(bank, "/bankgb"));
+	
+	return (true && true ? 0 : -5);
 }
 
 void saveExit(void)
@@ -52,6 +54,38 @@ void saveExit(void)
 
 	bankWriteData(bank, &sbank);
 	bankWriteFile(bank, "/bankgb");
+}
+
+SAV_GameVersion saveGetGameVersion(uint64_t titleid)
+{
+	switch (titleid)
+	{
+		case 0x0004000000170C00: ///< Pokémon Red (JPN) (JP)
+		case 0x0004000000171000: ///< Pokémon Red (FREE) (EN)
+		case 0x0004000000171300: ///< Pokémon Red (EUR) (DE)
+		case 0x0004000000171600: ///< Pokémon Red (EUR) (FR) ??
+		case 0x0004000000171900: ///< Pokémon Red (EUR) (ES)
+		case 0x0004000000171C00: ///< Pokémon Red (EUR) (IT) ??
+			return POKEMON_RED;
+		case 0x0004000000170D00: ///< Pokémon Green (JPN) (JP)
+			return POKEMON_GREEN;
+		case 0x0004000000170E00: ///< Pokémon Blue? (JPN) (JP) ??
+		case 0x0004000000171100: ///< Pokémon Blue (FREE) (EN)
+		case 0x0004000000171400: ///< Pokémon Blue (EUR) (DE)
+		case 0x0004000000171700: ///< Pokémon Blue (EUR) (FR)
+		case 0x0004000000171A00: ///< Pokémon Blue (EUR) (ES)
+		case 0x0004000000171D00: ///< Pokémon Blue (EUR) (IT) ??
+			return POKEMON_BLUE;
+		case 0x0004000000170F00: ///< Pokémon Yellow (JPN) (JP)
+		case 0x0004000000171500: ///< Pokémon Yellow (EUR) (DE)
+		case 0x0004000000171200: ///< Pokémon Yellow (FREE) (EN)
+		case 0x0004000000171800: ///< Pokémon Yellow (EUR) (FR)
+		case 0x0004000000171B00: ///< Pokémon Yellow (EUR) (ES)
+		case 0x0004000000171E00: ///< Pokémon Yellow (EUR) (IT)
+			return POKEMON_YELLOW;
+		default:
+			return NOT_POKEMON;
+	}
 }
 
 /**
@@ -384,10 +418,14 @@ uint16_t saveWriteFile(const uint8_t* save, const char* path)
 
 void saveReadData(const uint8_t* save, SAV_Game* sgame, uint16_t bytesRead)
 {
+	char title[11];
 	sgame->boxCount = 12;
 
 	for (uint8_t i = 0; i < sgame->boxCount; i++)
 	{
+		sgame->boxes[i].index = i;
+		sprintf(title, "Box %u", i+1);
+		fontConvertString(sgame->boxes[i].title, title);
 		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < 6 ?  0 : 0x5B4) + i * BOX_SIZE), 0x21, 20);
 	}
 }
@@ -510,12 +548,16 @@ uint16_t bankWriteFile(const uint8_t* bank, const char* path)
 
 void bankReadData(uint8_t* bank, SAV_Bank* sbank, uint16_t bytesRead)
 {
+	char title[11];
 	sbank->magic = *(uint32_t*)(bank + 0x00);
 	sbank->version = *(uint32_t*)(bank + 0x04);
 	sbank->boxCount = BANK_BOX_MAX_COUNT;
 
 	for (uint8_t i = 0; i < sbank->boxCount; i++)
 	{
+		sbank->boxes[i].index = i;
+		sprintf(title, "Box %u", i+1);
+		fontConvertString(sbank->boxes[i].title, title);
 		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE, 0x21, POKEMON_LIST_MAX_COUNT);
 	}
 }

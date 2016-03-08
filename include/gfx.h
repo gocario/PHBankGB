@@ -2,7 +2,7 @@
 
 #include <sf2d.h>
 
-/// 
+/// Unused
 typedef enum
 {
 	PKM_ICON_BIPED = 0,		///< SPRITE_MON       Pokémon icon (2 frames) 
@@ -183,21 +183,19 @@ typedef enum
 } GFX_Frame;
 
 /**
- * @brief Initializes the gfx module.
+ * @brief Loads and initializes the gfx module.
  */
-void gfxCreate(void);
+Result gfxLoad(void);
 
 /**
- * @brief Exits the gfx module.
+ * @brief Loads the gb frame of the game version.
+ */
+Result gfxLoadFrame(uint64_t titleid);
+
+/**
+ * @brief Frees and exits the gfx module.
  */
 void gfxFree(void);
-
-/**
- * @brief Gets the Pokémon gfx icon depending on its species.
- * @param species The species of the Pokémon.
- * @return The gfx icon to draw.
- */
-GFX_PkmIcon gfxGetPokemonIcon(uint8_t species);
 
 /**
  * @brief Draws a Pokémon icon.
@@ -207,6 +205,11 @@ GFX_PkmIcon gfxGetPokemonIcon(uint8_t species);
  * @param frame The gfx frame to draw.
  */
 void gfxDrawPokemonIcon(int16_t x, int16_t y, GFX_Species icon, GFX_Frame frame);
+
+/**
+ * @todo
+ */
+void gfxDrawFrame(int16_t x, int16_t y);
 
 /**
  * @todo

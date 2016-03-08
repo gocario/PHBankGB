@@ -204,7 +204,7 @@ void boxViewerUpdate(void)
 
 static void boxViewerDrawTop(void)
 {
-
+	gfxDrawFrame(0, 0);
 }
 
 static void boxViewerDrawBottom(void)
@@ -223,9 +223,9 @@ static void boxViewerDrawBottom(void)
 
 void boxViewerDraw(void)
 {
-	// sf2d_start_frame(GFX_TOP, GFX_LEFT);
+	sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		boxViewerDrawTop();
-	// sf2d_end_frame();
+	sf2d_end_frame();
 	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
 		boxViewerDrawBottom();
 	sf2d_end_frame();
@@ -236,6 +236,8 @@ static void boxDrawBox(CursorInbox* cursorin, int16_t x, int16_t y)
 {
 	gfxDrawPanel(x, y, 2, 16);
 	gfxDrawPanel(x, y + 32, 24, 16);
+
+	fontDrawString8(x + 32, y + 12, cursorin->vBox->title);
 
 	for (uint8_t i = 0; i < cursorin->vBox->capacity; i++)
 	{

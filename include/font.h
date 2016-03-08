@@ -7,14 +7,14 @@
 typedef uint8_t char8_t;
 
 /**
- * @brief Initializes the font module.
+ * @brief Loads and initializes the font module.
  */
-void fontInit(void);
+Result fontLoad(void);
 
 /**
- * @brief Exits the font module.
+ * @brief Frees and exits the font module.
  */
-void fontExit(void);
+void fontFree(void);
 
 /**
  * @briefs Converts basically a char string into a char8_t string.
