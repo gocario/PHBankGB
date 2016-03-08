@@ -2,9 +2,11 @@
 #include "bank.h"
 #include "pkdir.h"
 #include "pokedex.h"
+#include "personal.h"
 #include "fs.h"
 
 #include <3ds/result.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -141,7 +143,6 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 	pkm->EVs[2] = *(u16*)(pkmbuf + 0x15);
 	pkm->EVs[3] = *(u16*)(pkmbuf + 0x17);
 	pkm->EVs[4] = *(u16*)(pkmbuf + 0x19);
-	pkm->IVs[0] = 0;
 	pkm->IVs[1] = pkmbuf[0x1B] & 0x0F;
 	pkm->IVs[2] = pkmbuf[0x1B] >> 4;
 	pkm->IVs[3] = pkmbuf[0x1C] & 0x0F;
@@ -155,15 +156,29 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 	pkm->PPs[2] = pkmbuf[0x1F] & 0x3F;
 	pkm->PPs[3] = pkmbuf[0x20] & 0x3F;
 
+	pkm->IVs[STAT_HP] = ((pkm->IVs[STAT_ATK] & 0x1) << 3) | ((pkm->IVs[STAT_DEF] & 0x1) << 2) | ((pkm->IVs[STAT_SPE] & 0x1) << 1) |	((pkm->IVs[STAT_SPC] & 0x1) << 0);
+
 	if (size == 0x2C)
 	{
 		// Party attributes
 		pkm->level = pkmbuf[0x21];
-		pkm->maximumHP = *(u16*)(pkmbuf + 0x22);
-		pkm->attack = *(u16*)(pkmbuf + 0x24);
-		pkm->defense = *(u16*)(pkmbuf + 0x26);
-		pkm->speed = *(u16*)(pkmbuf + 0x28);
-		pkm->special = *(u16*)(pkmbuf + 0x2A);
+		pkm->maxHP = *(u16*)(pkmbuf + 0x22);
+		pkm->ATK = *(u16*)(pkmbuf + 0x24);
+		pkm->DEF = *(u16*)(pkmbuf + 0x26);
+		pkm->SPE = *(u16*)(pkmbuf + 0x28);
+		pkm->SPC = *(u16*)(pkmbuf + 0x2A);
+	}
+	else
+	{
+		const PersonalInfo* pInfo = Personal(pkm->nationalDex);
+
+		// TODO: Compute the level!
+		pkm->level = pkm->currentLevel;
+		pkm->maxHP = ((((pInfo->HP + pkm->IVs[STAT_HP]) * 2 + sqrt(pkm->EVs[STAT_HP]) / 4) * pkm->level) / 100) + pkm->level + 10;
+		pkm->ATK = ((((pInfo->ATK + pkm->IVs[STAT_ATK]) * 2 + sqrt(pkm->EVs[STAT_ATK]) / 4) * pkm->level) / 100) + 5;
+		pkm->DEF = ((((pInfo->DEF + pkm->IVs[STAT_DEF]) * 2 + sqrt(pkm->EVs[STAT_DEF]) / 4) * pkm->level) / 100) + 5;
+		pkm->SPE = ((((pInfo->SPE + pkm->IVs[STAT_SPE]) * 2 + sqrt(pkm->EVs[STAT_SPE]) / 4) * pkm->level) / 100) + 5;
+		pkm->SPC = ((((pInfo->SPC + pkm->IVs[STAT_SPC]) * 2 + sqrt(pkm->EVs[STAT_SPC]) / 4) * pkm->level) / 100) + 5;
 	}
 
 	// Count (1) + Species (capacity+1) + Pokémon (capacity*size) + OT_Name.index (index*11)
@@ -236,11 +251,11 @@ static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t ind
 	{
 		// Party attributes
 		pkmbuf[0x21] = pkm->level;
-		*(u16*)(pkmbuf + 0x22) = pkm->maximumHP;
-		*(u16*)(pkmbuf + 0x24) = pkm->attack;
-		*(u16*)(pkmbuf + 0x26) = pkm->defense;
-		*(u16*)(pkmbuf + 0x28) = pkm->speed;
-		*(u16*)(pkmbuf + 0x2A) = pkm->special;
+		*(u16*)(pkmbuf + 0x22) = pkm->maxHP;
+		*(u16*)(pkmbuf + 0x24) = pkm->ATK;
+		*(u16*)(pkmbuf + 0x26) = pkm->DEF;
+		*(u16*)(pkmbuf + 0x28) = pkm->SPE;
+		*(u16*)(pkmbuf + 0x2A) = pkm->SPC;
 	}
 
 	// Count (1) + Species (capacity+1) + Pokémon (capacity*size) + OT_Name.index (index*11)

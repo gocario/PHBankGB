@@ -9,6 +9,7 @@
 #include "save.h"
 #include "data.h"
 #include "version.h"
+#include "personal.h"
 #include "box_viewer.h"
 
 #ifdef __cia
@@ -35,6 +36,13 @@ int main(void)
 	{
 		// Graphics
 		error |= BIT(5);
+	}
+
+	ret = PersonalLoad();
+	if (R_FAILED(ret))
+	{
+		// Data
+		error |= BIT(3);
 	}
 
 #ifdef __cia

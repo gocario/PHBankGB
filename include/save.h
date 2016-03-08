@@ -78,10 +78,14 @@ typedef enum
 typedef enum
 {
 	STAT_HP = 0,		///< The hit points stat
-	STAT_ATTACK	= 1,	///< The attack stat
+	STAT_ATTACK = 1,	///< The attack stat
 	STAT_DEFENSE = 2,	///< The defense stat
 	STAT_SPEED = 3,		///< The speed stat
 	STAT_SPECIAL = 4,	///< The special stat
+	STAT_ATK = STAT_ATTACK,
+	STAT_DEF = STAT_DEFENSE,
+	STAT_SPE = STAT_SPEED,
+	STAT_SPC = STAT_SPECIAL,
 } SAV_Stat;
 
 /// 
@@ -110,11 +114,11 @@ typedef struct
 
 	// Party attributes
 	uint8_t level;
-	uint16_t maximumHP;
-	uint16_t attack;
-	uint16_t defense;
-	uint16_t speed;
-	uint16_t special;
+	uint16_t maxHP;	///< HitPoint max
+	uint16_t ATK;	///< Attack
+	uint16_t DEF;	///< Defense
+	uint16_t SPE;	///< Speed
+	uint16_t SPC;	///< Special
 
 	// Extra attributes
 	uint8_t species;		///< Species from list

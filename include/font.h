@@ -39,4 +39,4 @@ int8_t fontDrawChar8(int16_t x, int16_t y, char8_t c);
  * @param[in] str8 The char8_t string.
  * @return The width of the written string.
  */
-int16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str8);
+uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str8);

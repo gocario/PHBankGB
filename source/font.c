@@ -141,7 +141,7 @@ static void fontDrawControlChar8(int16_t o_x, int16_t o_y, int16_t* x, int16_t* 
 	}
 }
 
-int16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str)
+uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str)
 {
 	int16_t o_x = x, o_y = y;
 	while (*str != 0x00 && *str != 0x50)

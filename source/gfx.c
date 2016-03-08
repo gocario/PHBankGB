@@ -42,7 +42,7 @@ void gfxFreeFrame(void)
 	sf2d_free_texture(topFrame);
 }
 
-void gfxDrawPokemonIcon(int16_t x, int16_t y, GFX_Species icon, GFX_Frame frame)
+void gfxDrawPokemonIcon(int16_t x, int16_t y, DEX_Species icon, GFX_Frame frame)
 {
 	if (icon > SPECIES_MEW) icon = SPECIES_MISSINGNO;
 

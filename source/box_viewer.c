@@ -206,15 +206,42 @@ void boxViewerUpdate(void)
 static void boxViewerDrawTop(void)
 {
 	gfxDrawFrame(0, 0);
-	gfxDrawPanel(48 + 8, 40 + 64, 16, 10);
+
+	gfxDrawPanel(48 + 8, 40 + 64, 18, 10);
 
 	if (cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm))
 	{
+		gfxDrawPanel(56, 40, 6, 6);
+		boxDrawPokemon(cursor.vPkm, 56 + 24, 40 + 24);
+
 		fontDrawString8(64, 112, dataText(TEXT_HP));
 		fontDrawString8(64, 128, dataText(TEXT_ATTACK));
 		fontDrawString8(64, 144, dataText(TEXT_DEFENSE));
 		fontDrawString8(64, 160, dataText(TEXT_SPEED));
 		fontDrawString8(64, 176, dataText(TEXT_SPECIAL));
+		fontDrawString8(136, 112, dataText(TEXT_IV));
+		fontDrawString8(176, 112, dataText(TEXT_EV));
+
+		// Stats
+		fontDrawFromRightUInt32(104+16, 120, cursor.vPkm->maxHP);
+		fontDrawFromRightUInt32(104+16, 136, cursor.vPkm->ATK);
+		fontDrawFromRightUInt32(104+16, 152, cursor.vPkm->DEF);
+		fontDrawFromRightUInt32(104+16, 168, cursor.vPkm->SPE);
+		fontDrawFromRightUInt32(104+16, 184, cursor.vPkm->SPC);
+
+		// IVs
+		fontDrawFromRightUInt32(136+16, 120, cursor.vPkm->IVs[STAT_HP]);
+		fontDrawFromRightUInt32(136+16, 136, cursor.vPkm->IVs[STAT_ATTACK]);
+		fontDrawFromRightUInt32(136+16, 152, cursor.vPkm->IVs[STAT_DEFENSE]);
+		fontDrawFromRightUInt32(136+16, 168, cursor.vPkm->IVs[STAT_SPEED]);
+		fontDrawFromRightUInt32(136+16, 184, cursor.vPkm->IVs[STAT_SPECIAL]);
+
+		// EVs
+		fontDrawFromRightUInt32(160+40, 120, cursor.vPkm->EVs[STAT_HP]);
+		fontDrawFromRightUInt32(160+40, 136, cursor.vPkm->EVs[STAT_ATTACK]);
+		fontDrawFromRightUInt32(160+40, 152, cursor.vPkm->EVs[STAT_DEFENSE]);
+		fontDrawFromRightUInt32(160+40, 168, cursor.vPkm->EVs[STAT_SPEED]);
+		fontDrawFromRightUInt32(160+40, 184, cursor.vPkm->EVs[STAT_SPECIAL]);
 
 		// fontDrawString8(200, 50, cursor.vPkm->nameOT);
 		// fontDrawString8(200, 70, cursor.vPkm->nameNK);
