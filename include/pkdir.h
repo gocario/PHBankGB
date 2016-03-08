@@ -14,6 +14,8 @@
  * @brief Shared folders.
  */
 #define ROOT_FOLDER "/"
+#define BASE_FOLDER "/pk/"
+#define DATA_FOLDER "/pk/data/"
 #define ROMFS_FOLDER "/pk/romfs/"
 
 /**

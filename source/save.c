@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/dirent.h>
 
 /// 
 typedef enum
@@ -53,6 +54,9 @@ void saveExit(void)
 	saveWriteData(save, &sgame);
 	saveWriteFile(save, "/rey_pokered_out.sav");
 	// saveWriteFile(save, ROOT_FOLDER SAVEGB_FILE); // TODO
+
+	mkdir(BASE_FOLDER, 0700);
+	mkdir(BANK_FOLDER, 0700);
 
 	bankWriteData(bank, &sbank);
 	bankWriteFile(bank, BANK_FOLDER BANKGB_FILE);

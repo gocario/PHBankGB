@@ -22,6 +22,17 @@ typedef enum
 /// 
 typedef enum
 {
+	POKEMON_JP,	///< Japanese
+	POKEMON_EN,	///< English
+	POKEMON_FR,	///< French
+	POKEMON_DE,	///< German
+	POKEMON_IT,	///< Italian
+	POKEmON_ES,	///< Spanish
+} SAV_GameLang;
+
+/// 
+typedef enum
+{
 	OPT_SOUND_MONO = 0x0,
 	OPT_SOUND_STEREO = BIT(4),
 	OPT_SOUND_EARPHONE1 = BIT(4),
