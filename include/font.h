@@ -24,6 +24,15 @@ typedef enum
 	CHAR8_POKEBALL_SEEN = 0xD8,
 } FONT_Char8;
 
+/// 
+typedef enum
+{
+	SUBCHAR_TOP_LEFT = 0,
+	SUBCHAR_TOP_RIGHT = 1,
+	SUBCHAR_BOTTOM_LEFT = 2,
+	SUBCHAR_BOTTOM_RIGHT = 3,
+} FONT_Subchar8;
+
 /**
  * @brief Loads and initializes the font module.
  */
@@ -51,6 +60,17 @@ void fontConvertString(char8_t* str8, const char* str);
 int8_t fontDrawChar8(int16_t x, int16_t y, char8_t c);
 
 /**
+/**
+ * @brief Draws a char8_t plain sub-character.
+ * @param x The x position.
+ * @param y The y position.
+ * @param c The char8_t character.
+ * @param i The index of the sub-character.
+ * @return The size of the sub-character.
+ */
+int8_t fontDrawSubchar8(int16_t x, int16_t y, char8_t c, FONT_Subchar8 i);
+
+/**
  * @brief Draws a char8_t string using the glyph sheet.
  * @param x The x position.
  * @param y The y position.
@@ -58,6 +78,14 @@ int8_t fontDrawChar8(int16_t x, int16_t y, char8_t c);
  * @return The width of the written string.
  */
 uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str8);
+
+/**
+ * @brief Draws an uint8_t number using the glyph sheet.
+ * @param x The x position.
+ * @param y The y position.
+ * @param v The uint8_t number.
+ */
+uint16_t fontDrawUInt8(int16_t x, int16_t y, int8_t v);
 
 /**
  * @brief Draws an uint32_t number using the glyph sheet from the right.

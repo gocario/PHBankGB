@@ -74,6 +74,16 @@ void gfxDrawPanel(int16_t x, int16_t y, uint8_t w, uint8_t h);
 /**
  * @todo
  */
+void gfxDrawLevel(int16_t x, int16_t y, uint8_t level);
+
+/**
+ * @todo
+ */
+void gfxDrawLifeBar(int16_t x, int16_t y, uint16_t currentHP, uint16_t maxHP, bool onlyBar);
+
+/**
+ * @todo
+ */
 void gfxDrawEmptyArrow(int16_t x, int16_t y);
 
 /**

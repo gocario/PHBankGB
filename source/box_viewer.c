@@ -253,6 +253,10 @@ static void boxViewerDrawTop(void)
 		fontDrawPaddingUInt16(144, 96, cursor.vPkm->originalTID);
 		// TODO: Draw the TID!
 
+		/** Life Bar **/
+		gfxDrawLevel(272, 44, cursor.vPkm->level);
+		gfxDrawLifeBar(248, 54, cursor.vPkm->currentHP, cursor.vPkm->maxHP, false);
+
 		/** Types **/
 		fontDrawString8(232, 72, dataText(TEXT_TYPE1));
 		fontDrawString8(248, 80, dataType(cursor.vPkm->types[0]));

@@ -77,6 +77,13 @@ int8_t fontDrawChar8(int16_t x, int16_t y, char8_t c)
 	return CHAR_SIZE;
 }
 
+int8_t fontDrawSubchar8(int16_t x, int16_t y, char8_t c, FONT_Subchar8 i)
+{
+	sf2d_draw_texture_part(fontGB, x, y, (c % 0x10) * CHAR_SIZE + (i % 4 % 2) * CHAR_SIZE / 2, (c / 0x10) * CHAR_SIZE + (i % 4 / 2) * CHAR_SIZE / 2, CHAR_SIZE / 2, CHAR_SIZE / 2);
+
+	return CHAR_SIZE / 2;
+}
+
 /**
  * @brief Handles a char8_t control character.
  * @param o_x The x original position.
@@ -161,12 +168,46 @@ uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str)
 	return x - o_x;
 }
 
+uint16_t fontDrawUInt8(int16_t x, int16_t y, int8_t v)
+{
+	int16_t o_x = x;
+	bool found = false;
+	for (uint16_t i = 10000; i > 0; i /= 10)
+	{
+		if (v / i % 10 != 0)
+			found = true;
+		if (found)
+			x += fontDrawChar8(x, y, 0xF6 + (v / i % 10));
+	}
+	return x - o_x;
+}
+
 uint16_t fontDrawFromRightUInt32(int16_t x, int16_t y, uint32_t v)
 {
-	uint16_t o_x = x;
+	int16_t o_x = x;
 	for (uint32_t i = 1; i < 100000 && (i == 1 || v/i != 0); i *= 10)
 	{
-		x -= fontDrawChar8(x, y, 0xF6 + ((v / i) % 10));
+		x -= fontDrawChar8(x, y, 0xF6 + (v / i % 10));
+	}
+	return x - o_x;
+}
+
+uint16_t fontDrawPaddingUInt8(int16_t x, int16_t y, uint8_t v)
+{
+	int16_t o_x = x;
+	for (uint16_t i = 100; i > 0; i /= 10)
+	{
+		x += fontDrawChar8(x, y, 0xF6 + (v / i % 10));
+	}
+	return x - o_x;
+}
+
+uint16_t fontDrawPaddingUInt16(int16_t x, int16_t y, uint16_t v)
+{
+	int16_t o_x = x;
+	for (uint32_t i = 10000; i > 0; i /= 10)
+	{
+		x += fontDrawChar8(x, y, 0xF6 + ((v / i) % 10));
 	}
 	return x - o_x;
 }
