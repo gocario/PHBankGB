@@ -118,15 +118,15 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 	pkmbuf = save + 1 + index;
 
 	// Extra attributes
-	pkm->species = pkmbuf[0];
+	pkm->species = pkmbuf[0x00];
 	pkm->nationalDex = pokedexGetNational(pkm->species);
 
 	// Count (1) + Species (capacity+1) + Pokémon.index (index*size)
 	pkmbuf = save + 2 + capacity + index * size;
 
 	// Shared attributes
-	pkm->speciesIndex = pkmbuf[0];
-	pkm->currentHP = *(u16*)(pkmbuf + 0x01);
+	pkm->speciesIndex = pkmbuf[0x00];
+	pkm->currentHP = pkmbuf[0x01] << 8 | pkmbuf[0x02];
 	pkm->currentLevel = pkmbuf[0x03];
 	pkm->status = pkmbuf[0x04];
 	pkm->types[0] = pkmbuf[0x05];
@@ -136,17 +136,17 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 	pkm->moves[1] = pkmbuf[0x09];
 	pkm->moves[2] = pkmbuf[0x0A];
 	pkm->moves[3] = pkmbuf[0x0B];
-	pkm->originalTID = *(u16*)(pkmbuf + 0x0C);
-	pkm->experience = *(u32*)(pkmbuf + 0x0E) & 0x00FFFFFF;
-	pkm->EVs[0] = *(u16*)(pkmbuf + 0x11);
-	pkm->EVs[1] = *(u16*)(pkmbuf + 0x13);
-	pkm->EVs[2] = *(u16*)(pkmbuf + 0x15);
-	pkm->EVs[3] = *(u16*)(pkmbuf + 0x17);
-	pkm->EVs[4] = *(u16*)(pkmbuf + 0x19);
-	pkm->IVs[1] = pkmbuf[0x1B] & 0x0F;
-	pkm->IVs[2] = pkmbuf[0x1B] >> 4;
-	pkm->IVs[3] = pkmbuf[0x1C] & 0x0F;
-	pkm->IVs[4] = pkmbuf[0x1C] >> 4;
+	pkm->originalTID = pkmbuf[0x0C] << 8 | pkmbuf[0x0D];
+	pkm->experience = pkmbuf[0x0E] << 16 | pkmbuf[0x0F] << 8 | pkmbuf[0x10];
+	pkm->EVs[0] = pkmbuf[0x11] << 8 | pkmbuf[0x12];
+	pkm->EVs[1] = pkmbuf[0x13] << 8 | pkmbuf[0x14];
+	pkm->EVs[2] = pkmbuf[0x15] << 8 | pkmbuf[0x16];
+	pkm->EVs[3] = pkmbuf[0x17] << 8 | pkmbuf[0x18];
+	pkm->EVs[4] = pkmbuf[0x19] << 8 | pkmbuf[0x1A];
+	pkm->IVs[1] = pkmbuf[0x1B] >> 4;
+	pkm->IVs[2] = pkmbuf[0x1B] & 0x0F;
+	pkm->IVs[3] = pkmbuf[0x1C] >> 4;
+	pkm->IVs[4] = pkmbuf[0x1C] & 0x0F;
 	pkm->PPUps[0] = pkmbuf[0x1D] >> 6;
 	pkm->PPUps[1] = pkmbuf[0x1E] >> 6;
 	pkm->PPUps[2] = pkmbuf[0x1F] >> 6;
@@ -162,17 +162,17 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 	{
 		// Party attributes
 		pkm->level = pkmbuf[0x21];
-		pkm->maxHP = *(u16*)(pkmbuf + 0x22);
-		pkm->ATK = *(u16*)(pkmbuf + 0x24);
-		pkm->DEF = *(u16*)(pkmbuf + 0x26);
-		pkm->SPE = *(u16*)(pkmbuf + 0x28);
-		pkm->SPC = *(u16*)(pkmbuf + 0x2A);
+		pkm->maxHP = pkmbuf[0x22] << 8 | pkmbuf[0x23];
+		pkm->ATK = pkmbuf[0x24] << 8 | pkmbuf[0x25];
+		pkm->DEF = pkmbuf[0x26] << 8 | pkmbuf[0x27];
+		pkm->SPE = pkmbuf[0x28] << 8 | pkmbuf[0x29];
+		pkm->SPC = pkmbuf[0x2A] << 8 | pkmbuf[0x2B];
 	}
 	else
 	{
 		const PersonalInfo* pInfo = Personal(pkm->nationalDex);
 
-		// TODO: Compute the level!
+		// Compute the level? No!
 		pkm->level = pkm->currentLevel;
 		pkm->maxHP = ((((pInfo->HP + pkm->IVs[STAT_HP]) * 2 + sqrt(pkm->EVs[STAT_HP]) / 4) * pkm->level) / 100) + pkm->level + 10;
 		pkm->ATK = ((((pInfo->ATK + pkm->IVs[STAT_ATK]) * 2 + sqrt(pkm->EVs[STAT_ATK]) / 4) * pkm->level) / 100) + 5;
@@ -216,14 +216,15 @@ static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t ind
 	pkmbuf = save + 1 + index;
 
 	// Extra attributes
-	pkmbuf[0] = pkm->species;
+	pkmbuf[0x00] = pkm->species;
 
 	// Count (1) + Species (capacity+1) + Pokémon.index (index*size)
 	pkmbuf = save + 2 + capacity + index * size;
 
 	// Shared attributes
-	pkmbuf[0] = pkm->speciesIndex;
-	*(u16*)(pkmbuf + 0x01) = pkm->currentHP;
+	pkmbuf[0x00] = pkm->speciesIndex;
+	pkmbuf[0x01] = pkm->currentHP >> 8;
+	pkmbuf[0x02] = pkm->currentHP & 0xFF;
 	pkmbuf[0x03] = pkm->currentLevel;
 	pkmbuf[0x04] = pkm->status;
 	pkmbuf[0x05] = pkm->types[0];
@@ -233,29 +234,42 @@ static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t ind
 	pkmbuf[0x09] = pkm->moves[1];
 	pkmbuf[0x0A] = pkm->moves[2];
 	pkmbuf[0x0B] = pkm->moves[3];
-	*(u16*)(pkmbuf + 0x0C) = pkm->originalTID;
-	*(u32*)(pkmbuf + 0x0E) = (*(u32*)(pkmbuf + 0x0E) & ~0x00FFFFFF) | (pkm->experience & 0x00FFFFFF);
-	*(u16*)(pkmbuf + 0x11) = pkm->EVs[0];
-	*(u16*)(pkmbuf + 0x13) = pkm->EVs[1];
-	*(u16*)(pkmbuf + 0x15) = pkm->EVs[2];
-	*(u16*)(pkmbuf + 0x17) = pkm->EVs[3];
-	*(u16*)(pkmbuf + 0x19) = pkm->EVs[4];
-	pkmbuf[0x1B] = (pkm->IVs[1] & 0x0F) | ((pkm->IVs[2] & 0x0F) << 4);
-	pkmbuf[0x1C] = (pkm->IVs[3] & 0x0F) | ((pkm->IVs[4] & 0x0F) << 4);
-	pkmbuf[0x1D] = ((pkm->PPUps[0] & 0x3) << 6) | (pkm->PPs[0] & 0x3F);
-	pkmbuf[0x1E] = ((pkm->PPUps[1] & 0x3) << 6) | (pkm->PPs[1] & 0x3F);
-	pkmbuf[0x1F] = ((pkm->PPUps[2] & 0x3) << 6) | (pkm->PPs[2] & 0x3F);
-	pkmbuf[0x20] = ((pkm->PPUps[3] & 0x3) << 6) | (pkm->PPs[3] & 0x3F);
+	pkmbuf[0x0C] = pkm->originalTID >> 8;
+	pkmbuf[0x0D] = pkm->originalTID & 0xFF;
+	pkmbuf[0x0E] = pkm->experience >> 16 & 0xFF;
+	pkmbuf[0x0F] = pkm->experience >> 8 & 0xFF;
+	pkmbuf[0x10] = pkm->experience & 0xFF;
+	pkmbuf[0x11] = pkm->EVs[0] >> 8;
+	pkmbuf[0x12] = pkm->EVs[0] & 0xFF;
+	pkmbuf[0x13] = pkm->EVs[1] >> 8;
+	pkmbuf[0x14] = pkm->EVs[1] & 0xFF;
+	pkmbuf[0x15] = pkm->EVs[2] >> 8;
+	pkmbuf[0x16] = pkm->EVs[2] & 0xFF;
+	pkmbuf[0x17] = pkm->EVs[3] >> 8;
+	pkmbuf[0x18] = pkm->EVs[3] & 0xFF;
+	pkmbuf[0x19] = pkm->EVs[4] >> 8;
+	pkmbuf[0x1A] = pkm->EVs[4] & 0xFF;
+	pkmbuf[0x1B] = (pkm->IVs[1] & 0x0F) << 4 | (pkm->IVs[2] & 0x0F);
+	pkmbuf[0x1C] = (pkm->IVs[3] & 0x0F) << 4 | (pkm->IVs[4] & 0x0F);
+	pkmbuf[0x1D] = (pkm->PPUps[0] & 0x3) << 6 | (pkm->PPs[0] & 0x3F);
+	pkmbuf[0x1E] = (pkm->PPUps[1] & 0x3) << 6 | (pkm->PPs[1] & 0x3F);
+	pkmbuf[0x1F] = (pkm->PPUps[2] & 0x3) << 6 | (pkm->PPs[2] & 0x3F);
+	pkmbuf[0x20] = (pkm->PPUps[3] & 0x3) << 6 | (pkm->PPs[3] & 0x3F);
 
 	if (size == 0x2C)
 	{
 		// Party attributes
 		pkmbuf[0x21] = pkm->level;
-		*(u16*)(pkmbuf + 0x22) = pkm->maxHP;
-		*(u16*)(pkmbuf + 0x24) = pkm->ATK;
-		*(u16*)(pkmbuf + 0x26) = pkm->DEF;
-		*(u16*)(pkmbuf + 0x28) = pkm->SPE;
-		*(u16*)(pkmbuf + 0x2A) = pkm->SPC;
+		pkmbuf[0x22] = pkm->maxHP >> 8;
+		pkmbuf[0x23] = pkm->maxHP & 0xFF;
+		pkmbuf[0x24] = pkm->ATK >> 8;
+		pkmbuf[0x25] = pkm->ATK & 0xFF;
+		pkmbuf[0x26] = pkm->DEF >> 8;
+		pkmbuf[0x27] = pkm->DEF & 0xFF;
+		pkmbuf[0x28] = pkm->SPE >> 8;
+		pkmbuf[0x29] = pkm->SPE & 0xFF;
+		pkmbuf[0x2A] = pkm->SPC >> 8;
+		pkmbuf[0x2B] = pkm->SPC & 0xFF;
 	}
 
 	// Count (1) + Species (capacity+1) + Pokémon (capacity*size) + OT_Name.index (index*11)
@@ -494,7 +508,8 @@ void saveFixChecksum(uint8_t* save)
 {
 	uint8_t chk = 0;
 
-	for (uint16_t off = 0x2598; off < 0x3522; off++)
+	// [0x2598 -> 0x3522]
+	for (uint16_t off = 0x2598; off < 0x3523; off++)
 	{
 		chk += save[off];
 	}
