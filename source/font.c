@@ -27,17 +27,20 @@ enum
 } FONT_ControlChar;
 
 static sf2d_texture* fontGB;
+static sf2d_texture* fontJPGB;
 
 Result fontLoad(void)
 {
 	fontGB = sfil_load_PNG_file(ROMFS_FOLDER "font_gb.png", SF2D_PLACE_RAM);
+	fontJPGB = sfil_load_PNG_file(ROMFS_FOLDER "font_gb_jp.png", SF2D_PLACE_RAM);
 
-	return (fontGB ? 0 : -5);
+	return (fontGB && fontJPGB ? 0 : -5);
 }
 
 void fontFree(void)
 {
 	sf2d_free_texture(fontGB);
+	sf2d_free_texture(fontJPGB);
 }
 
 /**
@@ -73,6 +76,16 @@ int8_t fontDrawChar8(int16_t x, int16_t y, char8_t c)
 	// if (c >= 0x48 && c <= 0x5F) return 0;
 
 	sf2d_draw_texture_part(fontGB, x, y, (c % 0x10) * CHAR_SIZE, (c / 0x10) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE);
+
+	return CHAR_SIZE;
+}
+
+int8_t fontDrawJPChar8(int16_t x, int16_t y, char8_t c)
+{
+	// Do not draw the control characters.
+	// if (c >= 0x48 && c <= 0x5F) return 0;
+
+	sf2d_draw_texture_part(fontJPGB, x, y, (c % 0x10) * CHAR_SIZE, (c / 0x10) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE);
 
 	return CHAR_SIZE;
 }
@@ -146,6 +159,23 @@ static void fontDrawControlChar8(int16_t o_x, int16_t o_y, int16_t* x, int16_t* 
 			break;
 		default: return;
 	}
+}
+
+uint16_t fontDrawJPString8(int16_t x, int16_t y, const char8_t* str)
+{
+	int16_t o_x = x;
+	while (*str != 0x00 && *str != 0x50)
+	{
+		// If it is a control char
+		if (*str >= 0x48 && *str <= 0x5F);
+		// If it is a print/junk char
+		else
+		{
+			x += fontDrawJPChar8(x, y, *str);
+		}
+		str++;
+	}
+	return x - o_x;
 }
 
 uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str)

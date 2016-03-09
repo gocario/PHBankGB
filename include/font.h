@@ -60,6 +60,14 @@ void fontConvertString(char8_t* str8, const char* str);
 int8_t fontDrawChar8(int16_t x, int16_t y, char8_t c);
 
 /**
+ * @brief Draws a japan char8_t plain character.
+ * @param x The x position.
+ * @param y The y position.
+ * @param c The japan char8_t character.
+ * @return The size of the char.
+ */
+int8_t fontDrawJPChar8(int16_t x, int16_t y, char8_t c);
+
 /**
  * @brief Draws a char8_t plain sub-character.
  * @param x The x position.
@@ -78,6 +86,14 @@ int8_t fontDrawSubchar8(int16_t x, int16_t y, char8_t c, FONT_Subchar8 i);
  * @return The width of the written string.
  */
 uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str8);
+/**
+ * @brief Draws a japan char8_t string using the glyph sheet.
+ * @param x The x position.
+ * @param y The y position.
+ * @param[in] str8 The japan char8_t string.
+ * @return The width of the written string.
+ */
+uint16_t fontDrawJPString8(int16_t x, int16_t y, const char8_t* str8);
 
 /**
  * @brief Draws an uint8_t number using the glyph sheet.

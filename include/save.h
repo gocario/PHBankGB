@@ -22,12 +22,15 @@ typedef enum
 /// 
 typedef enum
 {
-	POKEMON_JP,	///< Japanese
-	POKEMON_EN,	///< English
-	POKEMON_FR,	///< French
-	POKEMON_DE,	///< German
-	POKEMON_IT,	///< Italian
-	POKEMON_ES,	///< Spanish
+	POKEMON_JP = 1,	///< Japanese
+	POKEMON_EN = 2,	///< English
+	POKEMON_FR = 3,	///< French
+	POKEMON_DE = 4,	///< German
+	POKEMON_IT = 5,	///< Italian
+	POKEMON_ES = 6,	///< Spanish
+
+	POKEMON_JAP = 0xFE,	///< Japanese Pokémon
+	POKEMON_ALL = 0xFF,	///< International Pokémon
 } SAV_GameLang;
 
 /// 
@@ -172,10 +175,13 @@ typedef struct
 	SAV_PokemonList boxes[BANK_BOX_MAX_COUNT];
 } SAV_Bank;
 
+extern uint64_t titleid;
 extern uint8_t save[];
 extern uint8_t bank[];
 extern SAV_Game sgame;
 extern SAV_Bank sbank;
+extern SAV_GameVersion vgame;
+extern SAV_GameLang lgame;
 
 /**
  * @brief Loads and initializes the save module.
@@ -193,6 +199,13 @@ void saveExit(void);
  * @return The game version.
  */
 SAV_GameVersion saveGetGameVersion(uint64_t titleid);
+
+/**
+ * @brief Gets the game lang of a game.
+ * @param titleid The title id of the game..
+ * @return The game lang.
+ */
+SAV_GameLang saveGetGameLang(uint64_t titleid);
 
 /**
  * @brief Gets a box from a list.

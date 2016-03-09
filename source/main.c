@@ -56,12 +56,16 @@ int main(void)
 		error |= BIT(5);
 	}
 
+	titleid = titleEntry.titleid;
+
 	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
 #else
 	while (aptMainLoop())
 	{
 
-	ret = gfxLoadFrame(0x0004000000171800);
+	titleid = 0x0004000000171800;
+
+	ret = gfxLoadFrame(titleid);
 	if (R_FAILED(ret))
 	{
 		// Graphics
@@ -82,6 +86,9 @@ int main(void)
 		// Save
 		error |= BIT(2);
 	}
+
+	vgame = saveGetGameVersion(titleid);
+	lgame = saveGetGameLang(titleid);
 
 	if (!error)
 	{
