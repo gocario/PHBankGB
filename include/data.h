@@ -3,11 +3,14 @@
 #define TEXT_COUNT (14)
 #define TEXT_LENGTH (7+1)
 
+#define MOVE_COUNT (165)
+#define MOVE_LENGTH (12+1)
+
 #define TYPE_COUNT (15+12)
 #define TYPE_LENGTH (8+1)
 
-#define MOVE_COUNT (165)
-#define MOVE_LENGTH (12+1)
+#define STATUS_COUNT (8)
+#define STATUS_LENGTH (3+1)
 
 #include "font.h"
 
@@ -37,9 +40,14 @@ const char8_t* dataText(DATA_Text text);
 /**
  *
  */
+const char8_t* dataMove(uint8_t move);
+
+/**
+ *
+ */
 const char8_t* dataType(uint8_t type);
 
 /**
  *
  */
-const char8_t* dataMove(uint8_t move);
+const char8_t* dataStatus(uint8_t status);

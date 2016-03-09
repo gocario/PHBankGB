@@ -216,6 +216,29 @@ static void boxViewerDrawTop(void)
 
 		fontDrawString8(128, 48, cursor.vPkm->nameNK);
 
+		/** Status **/
+		fontDrawString8(128, 60, dataText(TEXT_STATUS));
+		if (cursor.vPkm->currentHP == 0)
+		{
+			fontDrawString8(184, 60, dataStatus(STATUS_KO));
+		}
+		else
+		{
+			uint8_t status;
+
+			switch (cursor.vPkm->status)
+			{
+				case STATUS_ASLEEP: status = 2; break;
+				case  STATUS_POISONED: status = 3; break;
+				case STATUS_BURNED: status = 4; break;
+				case STATUS_FROZEN: status = 5; break;
+				case STATUS_PARALYZED: status = 6; break;
+				default: status = 0; break;
+			}
+
+			fontDrawString8(184, 60, dataStatus(status));
+		}
+
 		/** OTrainer **/
 		fontDrawString8(128, 80, dataText(TEXT_OT));
 		fontDrawString8(144, 88, cursor.vPkm->nameOT);

@@ -47,11 +47,13 @@ typedef enum
 /// 
 typedef enum
 {
-	STATUS_ASLEEP = BIT(3),		///< Asleep status
-	STATUS_POISONED = BIT(4),	///< Poisoned status
-	STATUS_BURNED = BIT(5),		///< Burned status
-	STATUS_FROZEN = BIT(6),		///< Frozen status
-	STATUS_PARALYZED = BIT(7),	///< Paralyzed status
+	STATUS_OK = 0,				///< OK
+	STATUS_KO = BIT(0),			///< KO (Custom)
+	STATUS_ASLEEP = BIT(2),		///< Asleep status
+	STATUS_POISONED = BIT(3),	///< Poisoned status
+	STATUS_BURNED = BIT(4),		///< Burned status
+	STATUS_FROZEN = BIT(5),		///< Frozen status
+	STATUS_PARALYZED = BIT(6),	///< Paralyzed status
 } SAV_Status;
 
 /// 
