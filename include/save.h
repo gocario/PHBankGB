@@ -27,7 +27,7 @@ typedef enum
 	POKEMON_FR,	///< French
 	POKEMON_DE,	///< German
 	POKEMON_IT,	///< Italian
-	POKEmON_ES,	///< Spanish
+	POKEMON_ES,	///< Spanish
 } SAV_GameLang;
 
 /// 
@@ -63,8 +63,20 @@ typedef enum
 	TYPE_POISON = 0x3,		///< Poison type
 	TYPE_GROUND = 0x4,		///< Ground type
 	TYPE_ROCK = 0x5,		///< Rock type
+	// TYPE_BIRD = 0x6,		///< /UNUSED
 	TYPE_BUG = 0x7,			///< Bug type
 	TYPE_GHOST = 0x8,		///< Ghost type
+	// TYPE_NORMAL = 0x9,	///< /UNUSED
+	// TYPE_NORMAL = 0xA,	///< /UNUSED
+	// TYPE_NORMAL = 0xB,	///< /UNUSED
+	// TYPE_NORMAL = 0xC,	///< /UNUSED
+	// TYPE_NORMAL = 0xD,	///< /UNUSED
+	// TYPE_NORMAL = 0xE,	///< /UNUSED
+	// TYPE_NORMAL = 0xF,	///< /UNUSED
+	// TYPE_NORMAL = 0x10,	///< /UNUSED
+	// TYPE_NORMAL = 0x11,	///< /UNUSED
+	// TYPE_NORMAL = 0x12,	///< /UNUSED
+	// TYPE_NORMAL = 0x13,	///< /UNUSED
 	TYPE_FIRE = 0x14,		///< Fire type
 	TYPE_WATER = 0x15,		///< Water type
 	TYPE_GRASS = 0x16,		///< Grass type
