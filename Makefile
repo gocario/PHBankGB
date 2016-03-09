@@ -30,7 +30,7 @@ include $(DEVKITARM)/3ds_rules
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 DATA		:=	data
-SOURCES		:=	source source/img source/text
+SOURCES		:=	source source/text
 INCLUDES	:=	include
 # ROMFS		:=	romfs
 
@@ -44,7 +44,7 @@ CIA_RSF			:=	assets/build-cia.rsf
 CIA_SMDH		:=	assets/icon.smdh
 CIA_BANNER		:=	assets/banner.bnr
 CIA_BANNER_PNG	:=	assets/banner.png
-CIA_BANNER_WAV	:=	assets/banner_short.wav
+CIA_BANNER_WAV	:=	assets/banner_shorter.cwav
 
 #---------------------------------------------------------------------------------
 # options for code generation
