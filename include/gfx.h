@@ -64,6 +64,11 @@ void gfxDrawFrame(int16_t x, int16_t y);
 /**
  * @todo
  */
+void gfxDrawFolio(int16_t x, int16_t y, uint8_t w, uint8_t h);
+
+/**
+ * @todo
+ */
 void gfxDrawPanel(int16_t x, int16_t y, uint8_t w, uint8_t h);
 
 /**

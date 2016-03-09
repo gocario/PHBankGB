@@ -2,9 +2,27 @@
 
 #include <3ds/types.h>
 
-#define CHAR8_LINE_BREAK (0x4F)
-
+///
 typedef uint8_t char8_t;
+
+///
+typedef enum
+{
+	CHAR8_LINE_BREAK = 0x4F,
+	CHAR8_DOT = 0xE8,
+	CHAR8_SLASH = 0xF3,
+
+	// Extra characters
+	CHAR8_ID = 0xD0,
+	CHAR8_NO = 0xD1,
+	CHAR8_LVL = 0xD2,
+	CHAR8_HP = 0xD3,
+	CHAR8_HPBAR_WHITE = 0xD4,
+	CHAR8_HPBAR_GREEN = 0xD5,
+	CHAR8_HPBAR_ORANGE = 0xD6,
+	CHAR8_HPBAR_RED = 0xD7,
+	CHAR8_POKEBALL_SEEN = 0xD8,
+} FONT_Char8;
 
 /**
  * @brief Loads and initializes the font module.
@@ -48,3 +66,19 @@ uint16_t fontDrawString8(int16_t x, int16_t y, const char8_t* str8);
  * @param v The uint32_t number.
  */
 uint16_t fontDrawFromRightUInt32(int16_t x, int16_t y, uint32_t v);
+
+/**
+ * @brief Draws an uint8_t number using the glyph sheet with right padding zeros.
+ * @param x The x position.
+ * @param y The y position.
+ * @param v The uint8_t number.
+ */
+uint16_t fontDrawPaddingUInt8(int16_t x, int16_t y, uint8_t v);
+
+/**
+ * @brief Draws an uint16_t number using the glyph sheet with right padding zeros.
+ * @param x The x position.
+ * @param y The y position.
+ * @param v The uint16_t number.
+ */
+uint16_t fontDrawPaddingUInt16(int16_t x, int16_t y, uint16_t v);

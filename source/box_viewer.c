@@ -208,11 +208,16 @@ static void boxViewerDrawTop(void)
 	gfxDrawFrame(0, 0);
 
 	gfxDrawPanel(48 + 8, 40 + 64, 18, 10);
+	gfxDrawFolio(224, 112, 13, 10);
+	gfxDrawFolio(224, 40, 13, 8);
 
 	if (cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm))
 	{
 		gfxDrawPanel(56, 40, 6, 6);
 		boxDrawPokemon(cursor.vPkm, 56 + 24, 40 + 24);
+		fontDrawChar8(68, 88, CHAR8_NO);
+		fontDrawChar8(76, 88, CHAR8_DOT);
+		fontDrawPaddingUInt8(84, 88, cursor.vPkm->nationalDex);
 
 		fontDrawString8(128, 48, cursor.vPkm->nameNK);
 
@@ -240,28 +245,34 @@ static void boxViewerDrawTop(void)
 		}
 
 		/** OTrainer **/
-		fontDrawString8(128, 80, dataText(TEXT_OT));
-		fontDrawString8(144, 88, cursor.vPkm->nameOT);
+		fontDrawString8(128, 72, dataText(TEXT_OT));
+		fontDrawString8(144, 80, cursor.vPkm->nameOT);
+		fontDrawChar8(128, 88, CHAR8_ID);
+		fontDrawChar8(136, 88, CHAR8_NO);
+		fontDrawChar8(144, 88, CHAR8_SLASH);
+		fontDrawPaddingUInt16(144, 96, cursor.vPkm->originalTID);
 		// TODO: Draw the TID!
 
 		/** Types **/
-		fontDrawString8(224, 80, dataText(TEXT_TYPE1));
-		fontDrawString8(240, 88, dataType(cursor.vPkm->types[0]));
+		fontDrawString8(232, 72, dataText(TEXT_TYPE1));
+		fontDrawString8(248, 80, dataType(cursor.vPkm->types[0]));
 		// TODO: Read types from a personal file?
 		if (cursor.vPkm->types[0] != cursor.vPkm->types[1])
 		{
-			fontDrawString8(224, 96, dataText(TEXT_TYPE2));
-			fontDrawString8(240, 104, dataType(cursor.vPkm->types[1]));
+			fontDrawString8(232, 88, dataText(TEXT_TYPE2));
+			fontDrawString8(248, 96, dataType(cursor.vPkm->types[1]));
 		}
 
 		/** Moves **/
-		fontDrawString8(224, 120, dataText(TEXT_MOVE));
+		fontDrawString8(224, 112, dataText(TEXT_MOVE));
 		for (uint8_t i = 0; i < 4; i++)
 		{
 			if (cursor.vPkm->moves[i] != 0)
 			{
 				fontDrawString8(240, 128+i*16, dataMove(cursor.vPkm->moves[i]));
-				fontDrawFromRightUInt32(336, 136+i*16, cursor.vPkm->PPs[i]);
+				fontDrawFromRightUInt32(304, 136+i*16, cursor.vPkm->PPs[i]);
+				fontDrawChar8(312, 136+i*16, CHAR8_SLASH);
+				fontDrawFromRightUInt32(328, 136+i*16, cursor.vPkm->PPs[i]); // TODO: PersonalMove
 			}
 		}
 

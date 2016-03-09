@@ -83,6 +83,27 @@ void gfxDrawPanel(int16_t x, int16_t y, uint8_t w, uint8_t h)
 	}
 }
 
+void gfxDrawFolio(int16_t x, int16_t y, uint8_t w, uint8_t h)
+{
+	// Bottom left
+	fontDrawChar8(x, y + h * 8, 0xDC);
+
+	// Bottom right
+	fontDrawChar8(x + (w + 1) * 8, y + h * 8, 0xDE);
+
+	// Horizontal
+	for (uint8_t xw = 0; xw < w; xw++)
+	{
+		fontDrawChar8(x + (xw + 1) * 8, y + h * 8, 0xDD);
+	}
+
+	// Vertical
+	for (uint8_t yh = 0; yh < h; yh++)
+	{
+		fontDrawChar8(x + (w + 1) * 8, y + yh * 8, 0xDF);
+	}
+}
+
 void gfxDrawEmptyArrow(int16_t x, int16_t y)
 {
 	fontDrawChar8(x, y, 0xEC);
