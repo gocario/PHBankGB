@@ -1,6 +1,6 @@
 #pragma once
 
-#include <3ds/types.h>
+#include "font.h"
 
 #define PKM_COUNT (151)
 
@@ -179,3 +179,13 @@ void pokedexAddOwned(uint8_t species);
  * @param species The species of the Pokémon.
  */
 void pokedexAddSeen(uint8_t species);
+
+/**
+ * @brief Checks if a Pokémon is from the TPP save.
+ * @param species The species of the Pokémon.
+ * @param[in] nickname The nickname of the Pokémon.
+ * @param[in] otname The name of the original trainer of the Pokémon.
+ * @return Whether the Pokémon is from the TPP save.
+ * @deprecated Not implemented.
+ */
+bool pokedexIsFromTPP(uint8_t species, const char8_t* nickname, const char8_t* otname);

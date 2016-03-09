@@ -40,10 +40,13 @@ const uint16_t SaveConst__offsetPokedexOwned = 0x25A3;
 const uint16_t SaveConst__offsetPokedexSeen = 0x25B6;
 const uint16_t SaveConst__offsetChecksum = 0x3523;
 
+uint64_t titleid;
 uint8_t save[SAVE_SIZE];
 uint8_t bank[BANK_SIZE];
 SAV_Game sgame;
 SAV_Bank sbank;
+SAV_GameVersion vgame;
+SAV_GameLang lgame;
 
 Result saveLoad(void)
 {
@@ -97,6 +100,40 @@ SAV_GameVersion saveGetGameVersion(uint64_t titleid)
 		case 0x0004000000171B00: ///< Pokémon Yellow (EUR) (ES)
 		case 0x0004000000171E00: ///< Pokémon Yellow (EUR) (IT)
 			return POKEMON_YELLOW;
+		default:
+			return NOT_POKEMON;
+	}
+}
+
+SAV_GameLang saveGetGameLang(uint64_t titleid)
+{
+	switch (titleid)
+	{
+		case 0x0004000000170C00: ///< Pokémon Red (JPN) (JP)
+		case 0x0004000000170D00: ///< Pokémon Green (JPN) (JP)
+		case 0x0004000000170E00: ///< Pokémon Blue? (JPN) (JP) ??
+		case 0x0004000000170F00: ///< Pokémon Yellow (JPN) (JP)
+			return POKEMON_JP;
+		case 0x0004000000171000: ///< Pokémon Red (FREE) (EN)
+		case 0x0004000000171100: ///< Pokémon Blue (FREE) (EN)
+		case 0x0004000000171200: ///< Pokémon Yellow (FREE) (EN)
+			return POKEMON_EN;
+		case 0x0004000000171600: ///< Pokémon Red (EUR) (FR) ??
+		case 0x0004000000171700: ///< Pokémon Blue (EUR) (FR)
+		case 0x0004000000171800: ///< Pokémon Yellow (EUR) (FR)
+			return POKEMON_FR;
+		case 0x0004000000171300: ///< Pokémon Red (EUR) (DE)
+		case 0x0004000000171400: ///< Pokémon Blue (EUR) (DE)
+		case 0x0004000000171500: ///< Pokémon Yellow (EUR) (DE)
+			return POKEMON_DE;
+		case 0x0004000000171C00: ///< Pokémon Red (EUR) (IT) ??
+		case 0x0004000000171D00: ///< Pokémon Blue (EUR) (IT) ??
+		case 0x0004000000171E00: ///< Pokémon Yellow (EUR) (IT)
+			return POKEMON_IT;
+		case 0x0004000000171B00: ///< Pokémon Yellow (EUR) (ES)
+		case 0x0004000000171900: ///< Pokémon Red (EUR) (ES)
+		case 0x0004000000171A00: ///< Pokémon Blue (EUR) (ES)
+			return POKEMON_ES;
 		default:
 			return NOT_POKEMON;
 	}
@@ -496,6 +533,9 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 			// Might be useless
 			if (sgame->boxes[iB].slots[iP].species == 0x00)
 				sgame->boxes[iB].slots[iP].species = 0xFF;
+
+			pokedexAddOwned(sgame->boxes[iB].slots[iP].nationalDex);
+			pokedexAddSeen(sgame->boxes[iB].slots[iP].nationalDex);
 		}
 
 		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < 6 ?  0 : 0x5B4) + iB * BOX_SIZE(20,0x21))); // TODO: Adapt for foreign games

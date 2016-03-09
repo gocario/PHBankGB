@@ -239,3 +239,51 @@ void pokedexAddSeen(uint8_t species)
 		setOffsetBit(save, SaveConst__offsetPokedexSeen, species-1, true);
 	}
 }
+
+bool pokedexIsFromTPP(uint8_t species, const char8_t* nickname, const char8_t* otname)
+{
+	// Lord Helix - A God
+	if (species == SPECIES_OMANYTE)
+	{
+		// OMANYTE
+		return true;
+	}
+	// Lord Helix - A God
+	else if (species == SPECIES_OMASTAR)
+	{
+		// OMASTAR
+		return true;
+	}
+	// Bird Jesus - A Messiah
+	else if (species == SPECIES_PIDGEOT)
+	{
+		// aaabaaajss
+		return true;
+	}
+	// Battery Jesus - An Angel
+	else if (species == SPECIES_ZAPDOS)
+	{
+		// AA-J
+		return true;
+	}
+	// The Fonz - A King
+	else if (species == SPECIES_NIDOKING)
+	{
+		// AAAAAAAAA
+		return true;
+	}
+	// Air Jordan - A Prince
+	else if (species == SPECIES_LAPRAS)
+	{
+		// AIIIIIIRRR
+		return true;
+	}
+	// AII-Terrain Venomoth - And an All Terrain Vehicle
+	else if (species == SPECIES_VENOMOTH)
+	{
+		// AATTVVV
+		return true;
+	}
+
+	return false;
+}
