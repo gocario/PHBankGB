@@ -310,6 +310,11 @@ static void boxViewerDrawTop(void)
 		// fontDrawString8(200, 50, cursor.vPkm->nameOT);
 		// fontDrawString8(200, 70, cursor.vPkm->nameNK);
 	}
+
+	if (cursor.sPkm && !saveIsPkmEmpty(cursor.sPkm))
+	{
+
+	}
 }
 
 static void boxViewerDrawBottom(void)

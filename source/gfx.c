@@ -22,7 +22,6 @@ Result gfxLoadFrame(uint64_t titleid)
 {
 	switch (saveGetGameVersion(titleid))
 	{
-		case NOT_POKEMON:
 		case POKEMON_RED: topFrame = sfil_load_PNG_file(ROMFS "frame_gbc_red.png", SF2D_PLACE_RAM); break;
 		case POKEMON_GREEN: topFrame = sfil_load_PNG_file(ROMFS "frame_gbc_green.png", SF2D_PLACE_RAM); break;
 		case POKEMON_BLUE: topFrame = sfil_load_PNG_file(ROMFS "frame_gbc_blue.png", SF2D_PLACE_RAM); break;

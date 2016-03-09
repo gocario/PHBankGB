@@ -52,6 +52,10 @@ Result saveLoad(void)
 {
 	Result ret;
 
+	vgame = saveGetGameVersion(titleid);
+	lgame = saveGetGameLang(titleid);
+	if (vgame == NOT_POKEMON || lgame == NOT_POKEMON) return -2;
+
 	ret = saveReadFile(save, ROOT_FOLDER SAVEGB_FILE);
 	if (R_FAILED(ret)) return ret;
 
@@ -482,14 +486,16 @@ Result saveWriteFile(const uint8_t* save, const char* path)
 void saveReadData(const uint8_t* save, SAV_Game* sgame)
 {
 	char title[11];
-	sgame->boxCount = 12;
+	sgame->boxCount = (lgame == POKEMON_JP ? 8 : 12);
+	sgame->boxCapacity = (lgame == POKEMON_JP ? 30 : 20);
 
 	for (uint8_t i = 0; i < sgame->boxCount; i++)
 	{
 		sgame->boxes[i].index = i;
 		sprintf(title, "Box %u", i+1);
 		fontConvertString(sgame->boxes[i].title, title);
-		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < 6 ?  0 : 0x5B4) + i * BOX_SIZE(20,0x21)), 0x21, 20); // TODO: Adapt for foreign games
+		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < sgame->boxCount/2 ? 0 : 0x5B4) + i * BOX_SIZE(sgame->boxCapacity,0x21)), 0x21, sgame->boxCapacity);
+
 	}
 }
 
@@ -530,7 +536,7 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 			if (!saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
 				sgame->boxes[iB].count++;
 
-			// Might be useless
+			// Might be useless (and dangerous for eggs in Gen II)
 			if (sgame->boxes[iB].slots[iP].species == 0x00)
 				sgame->boxes[iB].slots[iP].species = 0xFF;
 
@@ -538,7 +544,7 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 			pokedexAddSeen(sgame->boxes[iB].slots[iP].nationalDex);
 		}
 
-		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < 6 ?  0 : 0x5B4) + iB * BOX_SIZE(20,0x21))); // TODO: Adapt for foreign games
+		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < sgame->boxCount/2 ? 0 : 0x5B4) + iB * BOX_SIZE(sgame->boxCapacity,0x21)));
 	}
 
 	saveFixChecksum(save);
@@ -620,13 +626,14 @@ void bankReadData(uint8_t* bank, SAV_Bank* sbank, uint16_t bytesRead)
 	sbank->magic = *(uint32_t*)(bank + 0x00);
 	sbank->version = *(uint32_t*)(bank + 0x04);
 	sbank->boxCount = BANK_BOX_MAX_COUNT;
+	sbank->boxCapacity = POKEMON_LIST_MAX_COUNT;
 
 	for (uint8_t i = 0; i < sbank->boxCount; i++)
 	{
 		sbank->boxes[i].index = i;
 		sprintf(title, "Box %u", i+1);
 		fontConvertString(sbank->boxes[i].title, title);
-		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE(32,0x21), 0x21, POKEMON_LIST_MAX_COUNT);
+		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE(sbank->boxCapacity,0x21), 0x21, sbank->boxCapacity);
 	}
 }
 
@@ -670,11 +677,11 @@ void bankWriteData(uint8_t* bank, SAV_Bank* sbank)
 			if (!saveIsPkmEmpty(&sbank->boxes[iB].slots[iP]))
 				sbank->boxes[iB].count++;
 
-			// Might be useless
+			// Might be useless (and dangerous for eggs in Gen II)
 			if (sbank->boxes[iB].slots[iP].species == 0x00)
 				sbank->boxes[iB].slots[iP].species = 0xFF;
 		}
 
-		saveInjectPokemonList(bank, &sbank->boxes[iB], OFFSET_BBOX_1 + iB * BOX_SIZE(32,0x21));
+		saveInjectPokemonList(bank, &sbank->boxes[iB], OFFSET_BBOX_1 + iB * BOX_SIZE(sbank->boxCapacity,0x21));
 	}
 }

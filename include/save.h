@@ -9,10 +9,11 @@
 #define GAME_BOX_MAX_COUNT (12) // 12 | JP: 8
 #define BANK_BOX_MAX_COUNT (20) // 20
 
+#define NOT_POKEMON (0)
+
 /// 
 typedef enum
 {
-	NOT_POKEMON = 0,	///< Not Pokémon
 	POKEMON_RED = 1,	///< Pokémon Red
 	POKEMON_GREEN = 2,	///< Pokémon Green
 	POKEMON_BLUE = 3,	///< Pokémon Blue
@@ -163,6 +164,7 @@ typedef struct
 typedef struct
 {
 	uint8_t boxCount;
+	uint8_t boxCapacity;
 	SAV_PokemonList boxes[GAME_BOX_MAX_COUNT];
 } SAV_Game;
 
@@ -172,6 +174,7 @@ typedef struct
 	uint32_t magic;
 	uint32_t version;
 	uint8_t boxCount;
+	uint8_t boxCapacity;
 	SAV_PokemonList boxes[BANK_BOX_MAX_COUNT];
 } SAV_Bank;
 

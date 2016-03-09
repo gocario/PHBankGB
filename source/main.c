@@ -87,9 +87,6 @@ int main(void)
 		error |= BIT(2);
 	}
 
-	vgame = saveGetGameVersion(titleid);
-	lgame = saveGetGameLang(titleid);
-
 	if (!error)
 	{
 		boxViewerInitialize();
