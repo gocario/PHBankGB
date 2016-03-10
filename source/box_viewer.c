@@ -211,19 +211,21 @@ static void boxViewerDrawTop(void)
 	gfxDrawFolio(224, 112, 13, 10);
 	gfxDrawFolio(224, 40, 13, 8);
 
-	if (cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm))
+	if ((cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm)) || cursor.sPkm)
 	{
+		SAV_Pokemon* pkm = (cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm) ? cursor.vPkm : cursor.sPkm);
+
 		gfxDrawPanel(56, 40, 6, 6);
-		boxDrawPokemon(cursor.vPkm, 56 + 24, 40 + 24);
+		boxDrawPokemon(pkm, 56 + 24, 40 + 24);
 		fontDrawChar8(68, 88, CHAR8_NO);
 		fontDrawChar8(76, 88, CHAR8_DOT);
-		fontDrawPaddingUInt8(84, 88, cursor.vPkm->nationalDex);
+		fontDrawPaddingUInt8(84, 88, pkm->nationalDex);
 
-		fontDrawString8(128, 48, cursor.vPkm->nameNK);
+		fontDrawString8(128, 48, pkm->nameNK);
 
 		/** Status **/
 		fontDrawString8(128, 60, dataText(TEXT_STATUS));
-		if (cursor.vPkm->currentHP == 0)
+		if (pkm->currentHP == 0)
 		{
 			fontDrawString8(184, 60, dataStatus(STATUS_KO));
 		}
@@ -231,7 +233,7 @@ static void boxViewerDrawTop(void)
 		{
 			uint8_t status;
 
-			switch (cursor.vPkm->status)
+			switch (pkm->status)
 			{
 				case STATUS_ASLEEP: status = 2; break;
 				case  STATUS_POISONED: status = 3; break;
@@ -246,37 +248,37 @@ static void boxViewerDrawTop(void)
 
 		/** OTrainer **/
 		fontDrawString8(128, 72, dataText(TEXT_OT));
-		fontDrawString8(144, 80, cursor.vPkm->nameOT);
+		fontDrawString8(144, 80, pkm->nameOT);
 		fontDrawChar8(128, 88, CHAR8_ID);
 		fontDrawChar8(136, 88, CHAR8_NO);
 		fontDrawChar8(144, 88, CHAR8_SLASH);
-		fontDrawPaddingUInt16(144, 96, cursor.vPkm->originalTID);
+		fontDrawPaddingUInt16(144, 96, pkm->originalTID);
 		// TODO: Draw the TID!
 
 		/** Life Bar **/
-		gfxDrawLevel(272, 44, cursor.vPkm->level);
-		gfxDrawLifeBar(248, 54, cursor.vPkm->currentHP, cursor.vPkm->maxHP, false);
+		gfxDrawLevel(272, 44, pkm->level);
+		gfxDrawLifeBar(248, 54, pkm->currentHP, pkm->maxHP, false);
 
 		/** Types **/
 		fontDrawString8(232, 72, dataText(TEXT_TYPE1));
-		fontDrawString8(248, 80, dataType(cursor.vPkm->types[0]));
+		fontDrawString8(248, 80, dataType(pkm->types[0]));
 		// TODO: Read types from a personal file?
-		if (cursor.vPkm->types[0] != cursor.vPkm->types[1])
+		if (pkm->types[0] != pkm->types[1])
 		{
 			fontDrawString8(232, 88, dataText(TEXT_TYPE2));
-			fontDrawString8(248, 96, dataType(cursor.vPkm->types[1]));
+			fontDrawString8(248, 96, dataType(pkm->types[1]));
 		}
 
 		/** Moves **/
 		fontDrawString8(224, 112, dataText(TEXT_MOVE));
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			if (cursor.vPkm->moves[i] != 0)
+			if (pkm->moves[i] != 0)
 			{
-				fontDrawString8(240, 128+i*16, dataMove(cursor.vPkm->moves[i]));
-				fontDrawFromRightUInt32(304, 136+i*16, cursor.vPkm->PPs[i]);
+				fontDrawString8(240, 128+i*16, dataMove(pkm->moves[i]));
+				fontDrawFromRightUInt32(304, 136+i*16, pkm->PPs[i]);
 				fontDrawChar8(312, 136+i*16, CHAR8_SLASH);
-				fontDrawFromRightUInt32(328, 136+i*16, cursor.vPkm->PPs[i]); // TODO: PersonalMove
+				fontDrawFromRightUInt32(328, 136+i*16, pkm->PPs[i]); // TODO: PersonalMove
 			}
 		}
 
@@ -289,31 +291,23 @@ static void boxViewerDrawTop(void)
 		fontDrawString8(136, 112, dataText(TEXT_IV));
 		fontDrawString8(176, 112, dataText(TEXT_EV));
 		// Stats
-		fontDrawFromRightUInt32(104+16, 120, cursor.vPkm->maxHP);
-		fontDrawFromRightUInt32(104+16, 136, cursor.vPkm->ATK);
-		fontDrawFromRightUInt32(104+16, 152, cursor.vPkm->DEF);
-		fontDrawFromRightUInt32(104+16, 168, cursor.vPkm->SPE);
-		fontDrawFromRightUInt32(104+16, 184, cursor.vPkm->SPC);
+		fontDrawFromRightUInt32(104+16, 120, pkm->maxHP);
+		fontDrawFromRightUInt32(104+16, 136, pkm->ATK);
+		fontDrawFromRightUInt32(104+16, 152, pkm->DEF);
+		fontDrawFromRightUInt32(104+16, 168, pkm->SPE);
+		fontDrawFromRightUInt32(104+16, 184, pkm->SPC);
 		// IVs
-		fontDrawFromRightUInt32(136+16, 120, cursor.vPkm->IVs[STAT_HP]);
-		fontDrawFromRightUInt32(136+16, 136, cursor.vPkm->IVs[STAT_ATTACK]);
-		fontDrawFromRightUInt32(136+16, 152, cursor.vPkm->IVs[STAT_DEFENSE]);
-		fontDrawFromRightUInt32(136+16, 168, cursor.vPkm->IVs[STAT_SPEED]);
-		fontDrawFromRightUInt32(136+16, 184, cursor.vPkm->IVs[STAT_SPECIAL]);
+		fontDrawFromRightUInt32(136+16, 120, pkm->IVs[STAT_HP]);
+		fontDrawFromRightUInt32(136+16, 136, pkm->IVs[STAT_ATTACK]);
+		fontDrawFromRightUInt32(136+16, 152, pkm->IVs[STAT_DEFENSE]);
+		fontDrawFromRightUInt32(136+16, 168, pkm->IVs[STAT_SPEED]);
+		fontDrawFromRightUInt32(136+16, 184, pkm->IVs[STAT_SPECIAL]);
 		// EVs
-		fontDrawFromRightUInt32(160+40, 120, cursor.vPkm->EVs[STAT_HP]);
-		fontDrawFromRightUInt32(160+40, 136, cursor.vPkm->EVs[STAT_ATTACK]);
-		fontDrawFromRightUInt32(160+40, 152, cursor.vPkm->EVs[STAT_DEFENSE]);
-		fontDrawFromRightUInt32(160+40, 168, cursor.vPkm->EVs[STAT_SPEED]);
-		fontDrawFromRightUInt32(160+40, 184, cursor.vPkm->EVs[STAT_SPECIAL]);
-
-		// fontDrawString8(200, 50, cursor.vPkm->nameOT);
-		// fontDrawString8(200, 70, cursor.vPkm->nameNK);
-	}
-
-	if (cursor.sPkm && !saveIsPkmEmpty(cursor.sPkm))
-	{
-
+		fontDrawFromRightUInt32(160+40, 120, pkm->EVs[STAT_HP]);
+		fontDrawFromRightUInt32(160+40, 136, pkm->EVs[STAT_ATTACK]);
+		fontDrawFromRightUInt32(160+40, 152, pkm->EVs[STAT_DEFENSE]);
+		fontDrawFromRightUInt32(160+40, 168, pkm->EVs[STAT_SPEED]);
+		fontDrawFromRightUInt32(160+40, 184, pkm->EVs[STAT_SPECIAL]);
 	}
 }
 
@@ -323,6 +317,11 @@ static void boxViewerDrawBottom(void)
 
 	boxDrawBox(&cursor.pc, 0, 0);
 	boxDrawBox(&cursor.bk, 176, 0);
+
+	if (cursor.sPkm)
+	{
+		boxDrawPokemon(cursor.sPkm, 152, 8);
+	}
 }
 
 void boxViewerDraw(void)
@@ -345,7 +344,8 @@ static void boxDrawBox(CursorInbox* cursorin, int16_t x, int16_t y)
 
 	for (uint8_t i = 0; i < cursorin->vBox->capacity; i++)
 	{
-		boxDrawPokemon(&cursorin->vBox->slots[i], x + 20 + 32 * (i % 4), y + 44 + 24 * (i / 4));
+		if (&cursorin->vBox->slots[i] != cursor.sPkm)
+			boxDrawPokemon(&cursorin->vBox->slots[i], x + 20 + 32 * (i % 4), y + 44 + 24 * (i / 4));
 	}
 
 	if (cursorin == cursor.box) gfxDrawFullArrow(x + 8 + 32 * cursorin->col, y + 48 + 24 * cursorin->row);

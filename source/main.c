@@ -63,7 +63,8 @@ int main(void)
 	while (aptMainLoop())
 	{
 
-	titleid = 0x0004000000171800;
+	// titleid = 0x0004000000171800; // Pokémon Yellow	(EUR) (FR)
+	titleid = 0x0004000000170D00; // Pokémon Green	(JPN) (JP)
 
 	ret = gfxLoadFrame(titleid);
 	if (R_FAILED(ret))

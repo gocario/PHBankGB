@@ -357,6 +357,7 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
 	// printf("List %u/%u (%u)\n", pkmList->size, pkmList->count, pkmList->capacity);
 
 	save[listOffset] = pkmList->count;
+	save[listOffset+pkmList->count+1] = 0xFF;
 
 	for (uint8_t i = 0; i < pkmList->capacity; i++)
 		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
@@ -536,10 +537,6 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 			if (!saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
 				sgame->boxes[iB].count++;
 
-			// Might be useless (and dangerous for eggs in Gen II)
-			if (sgame->boxes[iB].slots[iP].species == 0x00)
-				sgame->boxes[iB].slots[iP].species = 0xFF;
-
 			pokedexAddOwned(sgame->boxes[iB].slots[iP].nationalDex);
 			pokedexAddSeen(sgame->boxes[iB].slots[iP].nationalDex);
 		}
@@ -676,10 +673,6 @@ void bankWriteData(uint8_t* bank, SAV_Bank* sbank)
 		{
 			if (!saveIsPkmEmpty(&sbank->boxes[iB].slots[iP]))
 				sbank->boxes[iB].count++;
-
-			// Might be useless (and dangerous for eggs in Gen II)
-			if (sbank->boxes[iB].slots[iP].species == 0x00)
-				sbank->boxes[iB].slots[iP].species = 0xFF;
 		}
 
 		saveInjectPokemonList(bank, &sbank->boxes[iB], OFFSET_BBOX_1 + iB * BOX_SIZE(sbank->boxCapacity,0x21));
