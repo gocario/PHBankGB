@@ -1,8 +1,8 @@
 #include "pokedex.h"
 #include "save.h"
 
-extern const uint32_t SaveConst__offsetPokedexOwned;
-extern const uint32_t SaveConst__offsetPokedexSeen;
+extern const uint16_t SaveConst__offsetPokedexOwned;
+extern const uint16_t SaveConst__offsetPokedexSeen;
 
 /**
  * @brief Gets a bit of a buffer.

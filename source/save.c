@@ -18,18 +18,8 @@ typedef enum
 	/* Game */
 	OFFSET_PARTY = 0x2F2C,		///< Party Pokémon list
 	OFFSET_CURRENT = 0x30C0,	///< Current Box Pokémon list
-	OFFSET_BOX_1 = 0x4000,		///< Box 1 Pokémon list
-	OFFSET_BOX_2 = 0x4462,		///< Box 2 Pokémon list
-	OFFSET_BOX_3 = 0x48C4,		///< Box 3 Pokémon list
-	OFFSET_BOX_4 = 0x4D26,		///< Box 4 Pokémon list
-	OFFSET_BOX_5 = 0x5188,		///< Box 5 Pokémon list
-	OFFSET_BOX_6 = 0x55EA,		///< Box 6 Pokémon list
-	OFFSET_BOX_7 = 0x6000,		///< Box 7 Pokémon list
-	OFFSET_BOX_8 = 0x6462,		///< Box 8 Pokémon list
-	OFFSET_BOX_9 = 0x68C4,		///< Box 9 Pokémon list
-	OFFSET_BOX_10 = 0x6D26,		///< Box 10 Pokémon list
-	OFFSET_BOX_11 = 0x7188,		///< Box 11 Pokémon list
-	OFFSET_BOX_12 = 0x75EA,		///< Box 12 Pokémon list
+	OFFSET_BOX_1 = 0x4000,		///< First group of Pokémon list
+	OFFSET_BOX_2 = 0x6000,		///< Second group of Pokémon list
 
 	/* Bank */
 	OFFSET_BBOX_1 = 0x100,		///< Bank box 1 Pokémon list
@@ -148,10 +138,11 @@ SAV_GameLang saveGetGameLang(uint64_t titleid)
  * @param[in] save The savedata buffer to the list offset.
  * @param[out] pkm The Pokémon.
  * @param index The index in the list.
- * @param size The size of a Pokémon struct.
+ * @param sizePkm The size of a Pokémon struct (pk1).
+ * @param sizeName The size of a name.
  * @param capacity The capacity of the list.
  */
-static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t index, uint8_t size, uint8_t capacity)
+static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t index, uint8_t sizePkm, uint8_t sizeName, uint8_t capacity)
 {
 	const uint8_t* pkmbuf;
 
@@ -162,8 +153,8 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 	pkm->species = pkmbuf[0x00];
 	pkm->nationalDex = pokedexGetNational(pkm->species);
 
-	// Count (1) + Species (capacity+1) + Pokémon.index (index*size)
-	pkmbuf = save + 2 + capacity + index * size;
+	// Count (1) + Species (capacity+1) + Pokémon.index (index*sizePkm)
+	pkmbuf = save + 2 + capacity + index * sizePkm;
 
 	// Shared attributes
 	pkm->speciesIndex = pkmbuf[0x00];
@@ -199,7 +190,7 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 
 	pkm->IVs[STAT_HP] = ((pkm->IVs[STAT_ATK] & 0x1) << 3) | ((pkm->IVs[STAT_DEF] & 0x1) << 2) | ((pkm->IVs[STAT_SPE] & 0x1) << 1) |	((pkm->IVs[STAT_SPC] & 0x1) << 0);
 
-	if (size == 0x2C)
+	if (sizePkm == 0x2C)
 	{
 		// Party attributes
 		pkm->level = pkmbuf[0x21];
@@ -222,19 +213,21 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
 		pkm->SPC = ((((pInfo->SPC + pkm->IVs[STAT_SPC]) * 2 + sqrt(pkm->EVs[STAT_SPC]) / 4) * pkm->level) / 100) + 5;
 	}
 
-	// Count (1) + Species (capacity+1) + Pokémon (capacity*size) + OT_Name.index (index*11)
-	pkmbuf = save + 2 + capacity * (size + 1) + index * 11;
+	// Count (1) + Species (capacity+1) + Pokémon (capacity*sizePkm) + OT_Name.index (index*sizeName)
+	pkmbuf = save + 2 + capacity * (sizePkm + 1) + (index) * sizeName;
 
 	// Extra attributes
-	for (uint8_t i = 0; i < 11; i++)
+	for (uint8_t i = 0; i < sizeName; i++)
 		pkm->nameOT[i] = pkmbuf[i];
+	pkm->nameOT[sizeName-1] = 0x50;
 
-	// Count (1) + Species (capacity+1) + Pokémon (capacity*size) + OT_Name (capacity*11) + NK_Name.index (index*11)
-	pkmbuf = save + 2 + capacity * (size + 1) + (capacity + index) * 11;
+	// Count (1) + Species (capacity+1) + Pokémon (capacity*sizePkm) + OT_Name (capacity*sizeName) + NK_Name.index (index*sizeName)
+	pkmbuf = save + 2 + capacity * (sizePkm + 1) + (capacity + index) * sizeName;
 
 	// Extra attributes
-	for (uint8_t i = 0; i < 11; i++)
+	for (uint8_t i = 0; i < sizeName; i++)
 		pkm->nameNK[i] = pkmbuf[i];
+	pkm->nameNK[sizeName-1] = 0x50;
 
 	pkm->moved = false;
 }
@@ -244,10 +237,11 @@ static void saveExtractPokemon(const uint8_t* save, SAV_Pokemon* pkm, uint8_t in
  * @param[in/out] save The savedata buffer to the list offset.
  * @param[in] pkm The Pokémon.
  * @param index The index in the list.
- * @param size The size of a Pokémon struct.
+ * @param sizePkm The size of a Pokémon struct (pk1).
+ * @param sizeName The size of a name.
  * @param capacity The capacity of the list.
  */
-static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t index, uint8_t size, uint8_t capacity)
+static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t index, uint8_t sizePkm, uint8_t sizeName, uint8_t capacity)
 {
 	if (!pkm->moved) return;
 
@@ -259,8 +253,8 @@ static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t ind
 	// Extra attributes
 	pkmbuf[0x00] = pkm->species;
 
-	// Count (1) + Species (capacity+1) + Pokémon.index (index*size)
-	pkmbuf = save + 2 + capacity + index * size;
+	// Count (1) + Species (capacity+1) + Pokémon.index (index*sizePkm)
+	pkmbuf = save + 2 + capacity + index * sizePkm;
 
 	// Shared attributes
 	pkmbuf[0x00] = pkm->speciesIndex;
@@ -297,7 +291,7 @@ static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t ind
 	pkmbuf[0x1F] = (pkm->PPUps[2] & 0x3) << 6 | (pkm->PPs[2] & 0x3F);
 	pkmbuf[0x20] = (pkm->PPUps[3] & 0x3) << 6 | (pkm->PPs[3] & 0x3F);
 
-	if (size == 0x2C)
+	if (sizePkm == 0x2C)
 	{
 		// Party attributes
 		pkmbuf[0x21] = pkm->level;
@@ -313,19 +307,21 @@ static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t ind
 		pkmbuf[0x2B] = pkm->SPC & 0xFF;
 	}
 
-	// Count (1) + Species (capacity+1) + Pokémon (capacity*size) + OT_Name.index (index*11)
-	pkmbuf = save + 2 + capacity * (size + 1) + index * 11;
+	// Count (1) + Species (capacity+1) + Pokémon (capacity*sizePkm) + OT_Name.index (index*sizeName)
+	pkmbuf = save + 2 + capacity * (sizePkm + 1) + (index) * sizeName;
 
 	// Extra attributes
-	for (uint8_t i = 0; i < 11; i++)
+	for (uint8_t i = 0; i < sizeName; i++)
 		pkmbuf[i] = pkm->nameOT[i];
+	pkmbuf[sizeName-1] = 0x50;
 
-	// Count (1) + Species (capacity+1) + Pokémon (capacity*size) + OT_Name (capacity*11) + NK_Name.index (index*11)
-	pkmbuf = save + 2 + capacity * (size + 1) + (capacity + index) * 11;
+	// Count (1) + Species (capacity+1) + Pokémon (capacity*sizePkm) + OT_Name (capacity*sizeName) + NK_Name.index (index*sizeName)
+	pkmbuf = save + 2 + capacity * (sizePkm + 1) + (capacity + index) * sizeName;
 
 	// Extra attributes
-	for (uint8_t i = 0; i < 11; i++)
+	for (uint8_t i = 0; i < sizeName; i++)
 		pkmbuf[i] = pkm->nameNK[i];
+	pkmbuf[sizeName-1] = 0x50;
 }
 
 /**
@@ -333,17 +329,21 @@ static void saveInjectPokemon(uint8_t* save, const SAV_Pokemon* pkm, uint8_t ind
  * @param[in] save The savedata buffer.
  * @param[out] pkmList The Pokémon list to populate.
  * @param listOffset The offset of the list.
+ * @param sizePkm The size of a Pokémon struct (pk1).
+ * @param sizeName The size of a name.
+ * @param capacity The capacity of the list.
  */
-static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList, SAV_PokemonListOffset listOffset, uint8_t size, uint8_t capacity)
+static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList, SAV_PokemonListOffset listOffset, uint8_t sizePkm, uint8_t sizeName, uint8_t capacity)
 {
 	pkmList->count = save[listOffset];
-	pkmList->size = size;
+	pkmList->sizePkm = sizePkm;
+	pkmList->sizeName = sizeName;
 	pkmList->capacity = capacity;
 
 	// printf("List %u/%u (x%u)\n", pkmList->count, pkmList->capacity, pkmList->size);
 
 	for (uint8_t i = 0; i < pkmList->capacity; i++)
-		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
+		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->sizePkm, pkmList->sizeName, pkmList->capacity);
 }
 
 /**
@@ -360,7 +360,7 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
 	save[listOffset+pkmList->count+1] = 0xFF;
 
 	for (uint8_t i = 0; i < pkmList->capacity; i++)
-		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->size, pkmList->capacity);
+		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->sizePkm, pkmList->sizeName, pkmList->capacity);
 }
 
 /**
@@ -489,19 +489,23 @@ void saveReadData(const uint8_t* save, SAV_Game* sgame)
 	char title[11];
 	sgame->boxCount = (lgame == POKEMON_JP ? 8 : 12);
 	sgame->boxCapacity = (lgame == POKEMON_JP ? 30 : 20);
+	sgame->nameSize = (lgame == POKEMON_JP ? 6 : 11);
+
+	uint16_t boxSize = BOX_SIZE(sgame->boxCapacity,0x21,sgame->nameSize);
 
 	for (uint8_t i = 0; i < sgame->boxCount; i++)
 	{
 		sgame->boxes[i].index = i;
 		sprintf(title, "Box %u", i+1);
 		fontConvertString(sgame->boxes[i].title, title);
-		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (i < sgame->boxCount/2 ? 0 : 0x5B4) + i * BOX_SIZE(sgame->boxCapacity,0x21)), 0x21, sgame->boxCapacity);
-
+		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : (i < sgame->boxCount/2 ? OFFSET_BOX_1 : OFFSET_BOX_2 - (sgame->boxCount/2) * boxSize) + i * boxSize), 0x21, sgame->nameSize, sgame->boxCapacity);
 	}
 }
 
 void saveWriteData(uint8_t* save, SAV_Game* sgame)
 {
+	uint16_t boxSize = BOX_SIZE(sgame->boxCapacity,0x21,sgame->nameSize);
+
 	for (uint8_t iB = 0; iB < sgame->boxCount; iB++)
 	{
 		// Iterate to find the empty slots
@@ -541,7 +545,7 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 			pokedexAddSeen(sgame->boxes[iB].slots[iP].nationalDex);
 		}
 
-		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : OFFSET_BOX_1 + (iB < sgame->boxCount/2 ? 0 : 0x5B4) + iB * BOX_SIZE(sgame->boxCapacity,0x21)));
+		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : (iB < sgame->boxCount/2 ? OFFSET_BOX_1 : OFFSET_BOX_2 - (sgame->boxCount/2) * boxSize) + iB * boxSize));
 	}
 
 	saveFixChecksum(save);
@@ -625,12 +629,14 @@ void bankReadData(uint8_t* bank, SAV_Bank* sbank, uint16_t bytesRead)
 	sbank->boxCount = BANK_BOX_MAX_COUNT;
 	sbank->boxCapacity = POKEMON_LIST_MAX_COUNT;
 
+	uint16_t boxSize = BOX_SIZE(sbank->boxCapacity,0x21,11);
+
 	for (uint8_t i = 0; i < sbank->boxCount; i++)
 	{
 		sbank->boxes[i].index = i;
 		sprintf(title, "Box %u", i+1);
 		fontConvertString(sbank->boxes[i].title, title);
-		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * BOX_SIZE(sbank->boxCapacity,0x21), 0x21, sbank->boxCapacity);
+		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * boxSize, 0x21, 11, sbank->boxCapacity);
 	}
 }
 
@@ -638,6 +644,8 @@ void bankWriteData(uint8_t* bank, SAV_Bank* sbank)
 {
 	*(uint32_t*)(bank + 0x00) = sbank->magic;
 	*(uint32_t*)(bank + 0x04) = sbank->version;
+
+	uint16_t boxSize = BOX_SIZE(sbank->boxCapacity,0x21,11);
 
 	for (uint8_t iB = 0; iB < sbank->boxCount; iB++)
 	{
@@ -675,6 +683,6 @@ void bankWriteData(uint8_t* bank, SAV_Bank* sbank)
 				sbank->boxes[iB].count++;
 		}
 
-		saveInjectPokemonList(bank, &sbank->boxes[iB], OFFSET_BBOX_1 + iB * BOX_SIZE(sbank->boxCapacity,0x21));
+		saveInjectPokemonList(bank, &sbank->boxes[iB], OFFSET_BBOX_1 + iB * boxSize);
 	}
 }

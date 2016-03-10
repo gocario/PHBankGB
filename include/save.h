@@ -4,7 +4,7 @@
 
 #define SAVE_SIZE (0x8000) // 0x7A4C
 #define BANK_SIZE (0x8E00) // 0x8D28
-#define BOX_SIZE(c,s) (2+c*(s+23)) // (1+c+1+c*s+c*11+c*11)
+#define BOX_SIZE(c,sp,sn) (2+c*(1+sp+sn*2)) // (1+c+1+c*sp+c*sn+c*sn)
 #define POKEMON_LIST_MAX_COUNT (32) // Party: 6 | Box: 20 | BoxJP: 30 | BoxBK: 32
 #define GAME_BOX_MAX_COUNT (12) // 12 | JP: 8
 #define BANK_BOX_MAX_COUNT (20) // 20
@@ -155,7 +155,8 @@ typedef struct
 
 	// Extra attributes
 	uint8_t index;		///< The index of the box
-	uint8_t size;		///< The size of each elements
+	uint8_t sizePkm;	///< The size of a Pokémon struct (pk1)
+	uint8_t sizeName;	///< The size of a name.
 	uint8_t capacity;	///< The max size of the list (<= POKEMON_LIST_MAX_COUNT)
 	char8_t title[11];	///< An emulated title box
 } SAV_PokemonList;
@@ -163,6 +164,7 @@ typedef struct
 /// 
 typedef struct
 {
+	uint8_t nameSize;
 	uint8_t boxCount;
 	uint8_t boxCapacity;
 	SAV_PokemonList boxes[GAME_BOX_MAX_COUNT];

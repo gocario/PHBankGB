@@ -60,7 +60,7 @@ int main(void)
 
 	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
 #else
-	while (aptMainLoop())
+	while (!error && aptMainLoop())
 	{
 
 	// titleid = 0x0004000000171800; // Pokémon Yellow	(EUR) (FR)
