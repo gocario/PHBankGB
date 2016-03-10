@@ -16,10 +16,12 @@
 typedef enum
 {
 	/* Game */
-	OFFSET_PARTY = 0x2F2C,		///< Party Pokémon list
-	OFFSET_CURRENT = 0x30C0,	///< Current Box Pokémon list
-	OFFSET_BOX_1 = 0x4000,		///< First group of Pokémon list
-	OFFSET_BOX_2 = 0x6000,		///< Second group of Pokémon list
+	OFFSET_PARTY_ALL = 0x2F2C,		///< Party Pokémon list
+	OFFSET_PARTY_JAP = 0x2ED5,		///< Party Pokémon list
+	OFFSET_CURRENT_ALL = 0x30C0,	///< Current Box Pokémon list
+	OFFSET_CURRENT_JAP = 0x302D,	///< Current Box Pokémon list
+	OFFSET_BOX_1 = 0x4000,			///< First group of Pokémon list
+	OFFSET_BOX_2 = 0x6000,			///< Second group of Pokémon list
 
 	/* Bank */
 	OFFSET_BBOX_1 = 0x100,		///< Bank box 1 Pokémon list
@@ -370,7 +372,7 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
  */
 static uint8_t saveGetCurrentBox(const uint8_t* save)
 {
-	return save[0x284C] & 0x7F;
+	return (lgame == POKEMON_JP ? save[0x2842] : save[0x284C]) & 0x7F;
 }
 
 SAV_PokemonList* gameGetBox(uint8_t box)
@@ -491,6 +493,7 @@ void saveReadData(const uint8_t* save, SAV_Game* sgame)
 	sgame->boxCapacity = (lgame == POKEMON_JP ? 30 : 20);
 	sgame->nameSize = (lgame == POKEMON_JP ? 6 : 11);
 
+	uint16_t offsetCurrent = (lgame == POKEMON_JP ? OFFSET_CURRENT_JAP : OFFSET_CURRENT_ALL);
 	uint16_t boxSize = BOX_SIZE(sgame->boxCapacity,0x21,sgame->nameSize);
 
 	for (uint8_t i = 0; i < sgame->boxCount; i++)
@@ -498,12 +501,13 @@ void saveReadData(const uint8_t* save, SAV_Game* sgame)
 		sgame->boxes[i].index = i;
 		sprintf(title, "Box %u", i+1);
 		fontConvertString(sgame->boxes[i].title, title);
-		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? OFFSET_CURRENT : (i < sgame->boxCount/2 ? OFFSET_BOX_1 : OFFSET_BOX_2 - (sgame->boxCount/2) * boxSize) + i * boxSize), 0x21, sgame->nameSize, sgame->boxCapacity);
+		saveExtractPokemonList(save, &sgame->boxes[i], (i == saveGetCurrentBox(save) ? offsetCurrent : (i < sgame->boxCount/2 ? OFFSET_BOX_1 : OFFSET_BOX_2 - (sgame->boxCount/2) * boxSize) + i * boxSize), 0x21, sgame->nameSize, sgame->boxCapacity);
 	}
 }
 
 void saveWriteData(uint8_t* save, SAV_Game* sgame)
 {
+	uint16_t offsetCurrent = (lgame == POKEMON_JP ? OFFSET_CURRENT_JAP : OFFSET_CURRENT_ALL);
 	uint16_t boxSize = BOX_SIZE(sgame->boxCapacity,0x21,sgame->nameSize);
 
 	for (uint8_t iB = 0; iB < sgame->boxCount; iB++)
@@ -541,11 +545,15 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 			if (!saveIsPkmEmpty(&sgame->boxes[iB].slots[iP]))
 				sgame->boxes[iB].count++;
 
+			if (lgame != POKEMON_JP)
+			{
+			// TODO: Remove that if when JP offsets found
 			pokedexAddOwned(sgame->boxes[iB].slots[iP].nationalDex);
 			pokedexAddSeen(sgame->boxes[iB].slots[iP].nationalDex);
+			}
 		}
 
-		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? OFFSET_CURRENT : (iB < sgame->boxCount/2 ? OFFSET_BOX_1 : OFFSET_BOX_2 - (sgame->boxCount/2) * boxSize) + iB * boxSize));
+		saveInjectPokemonList(save, &sgame->boxes[iB], (iB == saveGetCurrentBox(save) ? offsetCurrent : (iB < sgame->boxCount/2 ? OFFSET_BOX_1 : OFFSET_BOX_2 - (sgame->boxCount/2) * boxSize) + iB * boxSize));
 	}
 
 	saveFixChecksum(save);
