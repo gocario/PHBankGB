@@ -16,12 +16,12 @@
 #define r(fmt, args ...)
 #endif
 
-static const u32 pokemonTitleCount = 19;
+static const u32 pokemonTitleCount = 19-4;
 static const u64 pokemonTitleIDs[] = {
-	0x0004000000170C00, ///< Pokémon Red	(JPN) (JP)
-	0x0004000000170D00, ///< Pokémon Green	(JPN) (JP)
-	0x0004000000170E00, ///< Pokémon Blue?	(JPN) (JP) ??
-	0x0004000000170F00, ///< Pokémon Yellow	(JPN) (JP)
+	// 0x0004000000170C00, ///< Pokémon Red	(JPN) (JP)
+	// 0x0004000000170D00, ///< Pokémon Green	(JPN) (JP)
+	// 0x0004000000170E00, ///< Pokémon Blue?	(JPN) (JP) ??
+	// 0x0004000000170F00, ///< Pokémon Yellow	(JPN) (JP)
 	0x0004000000171000, ///< Pokémon Red	(FREE) (EN)
 	0x0004000000171100, ///< Pokémon Blue	(FREE) (EN)
 	0x0004000000171200, ///< Pokémon Yellow	(FREE) (EN)
@@ -41,20 +41,25 @@ static const u64 pokemonTitleIDs[] = {
 };
 
 static const char* pokemonTitleName[] = {
+	// "Pokémon Red (Japanese)",
+	// "Pokémon Green (Japanese)",
+	// "Pokémon Blue (Japanese)",
+	// "Pokémon Yellow (Japanese)",
 	"Pokémon Red (English)",
-	"Pokémon Green (Japanese)",
-	"Pokémon Yellow (Japanese)",
-	"Pokémon Red (Japanese)",
 	"Pokémon Blue (English)",
 	"Pokémon Yellow (English)",
 	"Pokémon Red (Deutsch)",
 	"Pokémon Blue (Deutsch)",
 	"Pokémon Yellow (Deutsch)",
+	"Pokémon Red (Français)",
 	"Pokémon Blue (Français)",
 	"Pokémon Yellow (Français)",
 	"Pokémon Red (Español)",
-	"Pokémon Yellow (Italian)",
+	"Pokémon Blue (Español)",
 	"Pokémon Yellow (Español)",
+	"Pokémon Red (Italian)",
+	"Pokémon Blue (Italian)",
+	"Pokémon Yellow (Italian)",
 	"Not Pokemon",
 };
 

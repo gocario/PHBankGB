@@ -49,6 +49,8 @@ int main(void)
 	while (!error && TS_Loop())
 	{
 
+	titleid = titleEntry.titleid;
+
 	ret = gfxLoadFrame(titleEntry.titleid);
 	if (R_FAILED(ret))
 	{
@@ -56,15 +58,13 @@ int main(void)
 		error |= BIT(5);
 	}
 
-	titleid = titleEntry.titleid;
-
 	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
 #else
 	while (!error && aptMainLoop())
 	{
 
-	// titleid = 0x0004000000171800; // Pokémon Yellow	(EUR) (FR)
-	titleid = 0x0004000000170D00; // Pokémon Green	(JPN) (JP)
+	titleid = 0x0004000000171800; // Pokémon Yellow	(EUR) (FR)
+	// titleid = 0x0004000000170D00; // Pokémon Green	(JPN) (JP)
 
 	ret = gfxLoadFrame(titleid);
 	if (R_FAILED(ret))
@@ -113,6 +113,7 @@ int main(void)
 	FSCIA_Exit();
 #else
 	gfxFreeFrame();
+	}
 	FS_Exit();
 #endif
 
@@ -128,11 +129,6 @@ int main(void)
 		printf("Press any key to exit\n");
 		waitKey(KEY_ANY);
 	}
-
-#ifndef __cia
-	printf("\n\n");
-	}
-#endif
 
 	gfxFree();
 	fontFree();
