@@ -13,6 +13,14 @@
 #define BOX_PKM_COUNT (BOX_ROW_PKM_COUNT*BOX_PKM_COUNT)
 #define BOX_HEADER_SELECTED (0) // TODO: -1
 
+typedef struct
+{
+	uint32_t down;
+	uint32_t held;
+	uint32_t up;
+	touchPosition touch;
+} KeyState;
+
 typedef struct 
 {
 	bool inBank : 1;
@@ -39,9 +47,13 @@ typedef struct
 	CursorInbox* box;
 	SAV_Pokemon* vPkm;
 	SAV_Pokemon* sPkm;
+	bool isPkmDragged : 1;
+	unsigned:7;
+
 } CursorBox;
 
 static CursorBox cursor;
+static KeyState ks;
 
 static void computeSlot(CursorInbox* cursorin)
 {
@@ -63,6 +75,11 @@ static void extractSlot(CursorInbox* cursorin, CursorSlot* cursorot)
 // 	cursorin->row = cursorot->row;
 // 	cursorin->col = cursorot->col;
 // }
+
+static inline bool touchWithin(s16 px, s16 py, s16 x, s16 y, s16 w, s16 h)
+{
+	return (px >= x && py >= y) && (px <= x + w && py <= y + h);
+}
 
 static void boxViewerDrawTop(void);
 static void boxViewerDrawBottom(void);
@@ -101,24 +118,25 @@ void boxViewerInitialize(void)
 
 void boxViewerUpdate(void)
 {
-	uint32_t kDown = hidKeysDown();
-	// uint32_t kHeld = hidKeysHeld();
+	ks.down = hidKeysDown();
+	ks.held = hidKeysHeld();
+	ks.up = hidKeysUp();
 
-	if (kDown)
+	if (ks.down)
 	{
 		bool boolMod = false;
 		int8_t boxMod = 0;
 		int8_t rowMod = 0;
 		int8_t colMod = 0;
 
-		if (kDown & KEY_L) boxMod--;
-		else if (kDown & KEY_R) boxMod++;
+		if (ks.down & KEY_L) boxMod--;
+		else if (ks.down & KEY_R) boxMod++;
 
-		if (kDown & KEY_UP) rowMod--;
-		else if (kDown & KEY_DOWN) rowMod++;
+		if (ks.down & KEY_UP) rowMod--;
+		else if (ks.down & KEY_DOWN) rowMod++;
 
-		if (kDown & KEY_LEFT) colMod--;
-		else if (kDown & KEY_RIGHT) colMod++;
+		if (ks.down & KEY_LEFT) colMod--;
+		else if (ks.down & KEY_RIGHT) colMod++;
 
 		if (boxMod || rowMod || colMod)
 		{
@@ -174,21 +192,21 @@ void boxViewerUpdate(void)
 		}
 	}
 
-	if (kDown)
+	if (ks.down)
 	{
 		{
-			if (kDown & KEY_A)
+			if (ks.down & KEY_A && !cursor.isPkmDragged)
 			{
 				boxSelectMovePokemon();
 			}
 
-			if (kDown & KEY_B)
+			if (ks.down & KEY_B)
 			{
 				boxCancelMovePokemon();
 			}
 		}
 
-		if (kDown & KEY_Y)
+		if (ks.down & KEY_Y)
 		{
 			printf("CursorInbox:\n");
 			printf(" inBank: %i\n", cursor.box->inBank);
@@ -199,6 +217,164 @@ void boxViewerUpdate(void)
 			printf(" vBox: %u\n", cursor.box->vBox->count);
 			printf(" boxGetHeight: %u\n", boxGetHeight());
 			printf(" boxGetWidth: %u\n", boxGetWidth(cursor.box->row));
+		}
+	}
+
+	if (ks.down & KEY_TOUCH)
+	{
+		hidTouchRead(&ks.touch);
+		uint16_t px = ks.touch.px;
+		uint16_t py = ks.touch.py;
+
+		// If the touchPosition is within the PC touchArea
+		if (touchWithin(px, py, 8, 40, 128-1, 192-1))
+		{
+			if (!cursor.sPkm && !cursor.isPkmDragged)
+			{
+				cursor.box = &cursor.pc;
+				cursor.box->row = (py - 40) / 24;
+				cursor.box->col = (px - 8) / 32;
+
+				boxSelectViewPkm();
+
+				{
+					// Move the current Pokémon
+					boxSelectMovePokemon();
+
+					// Start the drag if selected Pokémon
+					if (cursor.sPkm)
+					{
+						cursor.isPkmDragged = true;
+					}
+				}
+			}
+			else
+			{
+				// Move the cursor to the new slot
+				cursor.box = &cursor.pc;
+				uint16_t oldRow = cursor.box->row;
+				uint16_t oldCol = cursor.box->col;
+				cursor.box->row = (py - 40) / 24;
+				cursor.box->col = (px - 8) / 32;
+
+				// Update the current Pokémon
+				boxSelectViewPkm();
+
+				// And drop the selected Pokémon if double tap
+				if (cursor.sPkm && cursor.box->row == oldRow && cursor.box->col == oldCol)
+				{
+					boxSelectMovePokemon();
+				}
+			}
+		}
+		// If the touchPosition is within the BK touchArea
+		else if (touchWithin(px, py, 184, 40, 128-1, 192-1))
+		{
+			if (!cursor.sPkm && !cursor.isPkmDragged)
+			{
+				// Move the cursor to the new slot
+				cursor.box = &cursor.bk;
+				cursor.box->row = (py - 40) / 24;
+				cursor.box->col = (px - 184) / 32;
+
+				// Update the current Pokémon
+				boxSelectViewPkm();
+
+				{
+					// Move the current Pokémon (grab)
+					boxSelectMovePokemon();
+
+					// Start the drag if selected Pokémon
+					if (cursor.sPkm)
+					{
+						cursor.isPkmDragged = true;
+					}
+				}
+			}
+			else
+			{
+				// Move the cursor to the new slot
+				cursor.box = &cursor.bk;
+				uint16_t oldRow = cursor.box->row;
+				uint16_t oldCol = cursor.box->col;
+				cursor.box->row = (py - 40) / 24;
+				cursor.box->col = (px - 184) / 32;
+
+				// Update the current Pokémon
+				boxSelectViewPkm();
+
+				// And drop the selected Pokémon if double tap
+				if (cursor.sPkm && cursor.box->row == oldRow && cursor.box->col == oldCol)
+				{
+					boxSelectMovePokemon();
+				}
+			}
+		}
+	}
+	else if (ks.held & KEY_TOUCH)
+	{
+		hidTouchRead(&ks.touch);
+		uint16_t px = ks.touch.px;
+		uint16_t py = ks.touch.py;
+
+		// If the touchPosition is within the PC touchArea
+		if (touchWithin(px, py, 8, 40, 128-1, 192-1))
+		{
+			cursor.box = &cursor.pc;
+		}
+		// If the touchPosition is within the BK touchArea
+		else if (touchWithin(px, py, 184, 40, 128-1, 192-1))
+		{
+			cursor.box = &cursor.bk;
+		}
+	}
+	else if (ks.up & KEY_TOUCH)
+	{
+		uint16_t px = ks.touch.px;
+		uint16_t py = ks.touch.py;
+
+		if (cursor.sPkm && cursor.isPkmDragged)
+		{
+			// If the touchPosition is within the PC touchArea
+			if (touchWithin(px, py, 8, 40, 128-1, 192-1))
+			{
+				// Move the cursor to the new slot
+				cursor.box = &cursor.pc;
+				cursor.box->row = (py - 40) / 24;
+				cursor.box->col = (px - 8) / 32;
+
+				// Update the current Pokémon
+				boxSelectViewPkm();
+
+				// Move the selected Pokémon (drop)
+				boxSelectMovePokemon();
+			}
+			// If the touchPosition is within the BK touchArea
+			else if (touchWithin(px, py, 184, 40, 128-1, 192-1))
+			{
+				// Move the cursor to the new slot
+				cursor.box = &cursor.bk;
+				cursor.box->row = (py - 40) / 24;
+				cursor.box->col = (px - 184) / 32;
+
+				// Update the current Pokémon
+				boxSelectViewPkm();
+
+				// Move the selected Pokémon (drop)
+				boxSelectMovePokemon();
+			}
+			// If the touchPosition is outside the PC/BK touchArea
+			else
+			{
+				// Cancel the dragged move
+				boxCancelMovePokemon();
+
+				// Update the current Pokémon
+				boxSelectViewPkm();
+			}
+
+			// Cancel any drag
+			cursor.isPkmDragged = false;
 		}
 	}
 }
@@ -320,7 +496,14 @@ static void boxViewerDrawBottom(void)
 
 	if (cursor.sPkm)
 	{
-		boxDrawPokemon(cursor.sPkm, 152, 8);
+		if (cursor.isPkmDragged)
+		{
+			boxDrawPokemon(cursor.sPkm, ks.touch.px - 8, ks.touch.py - 8);
+		}
+		else
+		{
+			boxDrawPokemon(cursor.sPkm, 152, 8);
+		}
 	}
 }
 
@@ -348,7 +531,8 @@ static void boxDrawBox(CursorInbox* cursorin, int16_t x, int16_t y)
 			boxDrawPokemon(&cursorin->vBox->slots[i], x + 20 + 32 * (i % 4), y + 44 + 24 * (i / 4));
 	}
 
-	if (cursorin == cursor.box) gfxDrawFullArrow(x + 8 + 32 * cursorin->col, y + 48 + 24 * cursorin->row);
+	if (!cursor.isPkmDragged && cursorin == cursor.box)
+		gfxDrawFullArrow(x + 8 + 32 * cursorin->col, y + 48 + 24 * cursorin->row);
 }
 
 static void boxDrawPokemon(SAV_Pokemon* pkm, int16_t x, int16_t y)
@@ -385,12 +569,6 @@ static void boxSelectMovePokemon(void)
 			// Select the current Pokémon
 			cursor.sPkm = cursor.vPkm;
 			extractSlot(cursor.box, &cursor.sSlot);
-
-			// If the buttons are used
-			// if (cursor.isPkmDragged)
-			// {
-			// 	cursor.isPkmHeld = true;
-			// }
 		}
 	}
 	// Else if there is a current Pokémon
@@ -407,9 +585,6 @@ static void boxSelectMovePokemon(void)
 			{
 				boxCancelMovePokemon();
 			}
-
-			// Populate the Pokémon data
-			// boxPopulatePokemon(cursor.vPkm);
 		}
 		else
 		{
@@ -422,6 +597,7 @@ static void boxSelectMovePokemon(void)
 static void boxCancelMovePokemon(void)
 {
 	cursor.sPkm = NULL;
+	cursor.isPkmDragged = false;
 }
 
 static void boxSwapBox(void)
