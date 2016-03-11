@@ -204,6 +204,18 @@ void boxViewerUpdate(void)
 			{
 				boxCancelMovePokemon();
 			}
+
+			if (ks.down & KEY_ZL)
+			{
+				cursor.box = &cursor.pc;
+				boxSelectViewPkm();
+			}
+
+			if (ks.down & KEY_ZR)
+			{
+				cursor.box = &cursor.bk;
+				boxSelectViewPkm();
+			}
 		}
 
 		if (ks.down & KEY_Y)
