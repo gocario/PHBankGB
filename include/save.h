@@ -194,9 +194,9 @@ extern SAV_GameLang lgame;
 Result saveLoad(void);
 
 /**
- * @brief Exits the save module.
+ * @brief Saves the save module.
  */
-void saveExit(void);
+void saveSave(void);
 
 /**
  * @brief Gets the game version of a game.

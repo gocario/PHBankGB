@@ -57,7 +57,7 @@ Result saveLoad(void)
 	return (true && true ? 0 : -5);
 }
 
-void saveExit(void)
+void saveSave(void)
 {
 	saveWriteData(save, &sgame);
 	saveWriteFile(save, ROOT_FOLDER SAVEGB_FILE);
@@ -445,6 +445,7 @@ bool savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBa
 
 bool saveIsPkmEmpty(const SAV_Pokemon* pkm)
 {
+	// 0x00 might be the egg (Gen II)
 	return pkm->species == 0x00 || pkm->species > 0xBE;
 }
 
@@ -598,7 +599,8 @@ uint16_t bankReadFile(uint8_t* bank, const char* path)
 	else
 	{
 		printf(" Creating...");
-		memset(bank, 0, BANK_SIZE);
+		memset(bank, 0x00, BANK_SIZE);
+		memset(bank+100, 0xFF, BANK_BOX_MAX_COUNT * BOX_SIZE(POKEMON_LIST_MAX_COUNT,0x21,11));
 		bankUpdate(bank, BANK_SIZE);
 
 		printf(" OK\n  Created %d bytes\n", BANK_SIZE);
