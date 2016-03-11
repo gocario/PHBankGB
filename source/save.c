@@ -600,7 +600,7 @@ uint16_t bankReadFile(uint8_t* bank, const char* path)
 	{
 		printf(" Creating...");
 		memset(bank, 0x00, BANK_SIZE);
-		memset(bank+100, 0xFF, BANK_BOX_MAX_COUNT * BOX_SIZE(POKEMON_LIST_MAX_COUNT,0x21,11));
+		memset(bank+0x100, 0xFF, BANK_BOX_MAX_COUNT * BOX_SIZE(POKEMON_LIST_MAX_COUNT,0x21,11));
 		bankUpdate(bank, BANK_SIZE);
 
 		printf(" OK\n  Created %d bytes\n", BANK_SIZE);

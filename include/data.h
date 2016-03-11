@@ -3,7 +3,7 @@
 #define TEXT_COUNT (14)
 #define TEXT_LENGTH (7+1)
 
-#define MOVE_COUNT (165)
+#define MOVE_COUNT (165+1)
 #define MOVE_LENGTH (12+1)
 
 #define TYPE_COUNT (15+12)

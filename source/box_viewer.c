@@ -238,87 +238,63 @@ void boxViewerUpdate(void)
 		uint16_t px = ks.touch.px;
 		uint16_t py = ks.touch.py;
 
+		int16_t marginLeft = -1;
+
 		// If the touchPosition is within the PC touchArea
 		if (touchWithin(px, py, 8, 40, 128-1, 192-1))
 		{
-			if (!cursor.sPkm && !cursor.isPkmDragged)
-			{
-				cursor.box = &cursor.pc;
-				cursor.box->row = (py - 40) / 24;
-				cursor.box->col = (px - 8) / 32;
-
-				boxSelectViewPkm();
-
-				{
-					// Move the current Pokémon
-					boxSelectMovePokemon();
-
-					// Start the drag if selected Pokémon
-					if (cursor.sPkm)
-					{
-						cursor.isPkmDragged = true;
-					}
-				}
-			}
-			else
-			{
-				// Move the cursor to the new slot
-				cursor.box = &cursor.pc;
-				uint16_t oldRow = cursor.box->row;
-				uint16_t oldCol = cursor.box->col;
-				cursor.box->row = (py - 40) / 24;
-				cursor.box->col = (px - 8) / 32;
-
-				// Update the current Pokémon
-				boxSelectViewPkm();
-
-				// And drop the selected Pokémon if double tap
-				if (cursor.sPkm && cursor.box->row == oldRow && cursor.box->col == oldCol)
-				{
-					boxSelectMovePokemon();
-				}
-			}
+			marginLeft = 8;
 		}
 		// If the touchPosition is within the BK touchArea
 		else if (touchWithin(px, py, 184, 40, 128-1, 192-1))
 		{
-			if (!cursor.sPkm && !cursor.isPkmDragged)
+			marginLeft = 184;
+		}
+
+		// If the touchPosition is within a Box touchArea
+		if (marginLeft > 0)
+		{
+			cursor.box = (marginLeft == 8 ? &cursor.pc : &cursor.bk);
+			uint16_t oldRow = cursor.box->row;
+			uint16_t oldCol = cursor.box->col;
+			cursor.box->row = (py - 40) / 24;
+			cursor.box->col = (px - marginLeft) / 32;
+
+			computeSlot(cursor.box);
+
+			// Check if the new slot is in-capacity
+			if (cursor.box->slot > cursor.box->vBox->capacity)
 			{
-				// Move the cursor to the new slot
-				cursor.box = &cursor.bk;
-				cursor.box->row = (py - 40) / 24;
-				cursor.box->col = (px - 184) / 32;
+				cursor.box->row = (cursor.box->vBox->capacity-1) / BOX_COL_PKM_COUNT;
+				cursor.box->col = (cursor.box->vBox->capacity-1) % BOX_COL_PKM_COUNT;
 
 				// Update the current Pokémon
 				boxSelectViewPkm();
+			}
+			else
+			{
+				// Update the current Pokémon
+				boxSelectViewPkm();
 
+				// If no selected Pokémon
+				if (!cursor.sPkm && !cursor.isPkmDragged)
 				{
-					// Move the current Pokémon (grab)
+					// Move the current Pokémon
 					boxSelectMovePokemon();
 
-					// Start the drag if selected Pokémon
+					// Start the drag if a selected Pokémon
 					if (cursor.sPkm)
 					{
 						cursor.isPkmDragged = true;
 					}
 				}
-			}
-			else
-			{
-				// Move the cursor to the new slot
-				cursor.box = &cursor.bk;
-				uint16_t oldRow = cursor.box->row;
-				uint16_t oldCol = cursor.box->col;
-				cursor.box->row = (py - 40) / 24;
-				cursor.box->col = (px - 184) / 32;
-
-				// Update the current Pokémon
-				boxSelectViewPkm();
-
-				// And drop the selected Pokémon if double tap
-				if (cursor.sPkm && cursor.box->row == oldRow && cursor.box->col == oldCol)
+				else
 				{
-					boxSelectMovePokemon();
+					// And drop the selected Pokémon if double tap
+					if (cursor.sPkm && cursor.box->row == oldRow && cursor.box->col == oldCol)
+					{
+						boxSelectMovePokemon();
+					}
 				}
 			}
 		}
@@ -342,40 +318,52 @@ void boxViewerUpdate(void)
 	}
 	else if (ks.up & KEY_TOUCH)
 	{
-		uint16_t px = ks.touch.px;
-		uint16_t py = ks.touch.py;
-
 		if (cursor.sPkm && cursor.isPkmDragged)
 		{
+			uint16_t px = ks.touch.px;
+			uint16_t py = ks.touch.py;
+
+			int16_t marginLeft = -1;
+
 			// If the touchPosition is within the PC touchArea
 			if (touchWithin(px, py, 8, 40, 128-1, 192-1))
 			{
-				// Move the cursor to the new slot
-				cursor.box = &cursor.pc;
-				cursor.box->row = (py - 40) / 24;
-				cursor.box->col = (px - 8) / 32;
-
-				// Update the current Pokémon
-				boxSelectViewPkm();
-
-				// Move the selected Pokémon (drop)
-				boxSelectMovePokemon();
+				marginLeft = 8;
 			}
 			// If the touchPosition is within the BK touchArea
 			else if (touchWithin(px, py, 184, 40, 128-1, 192-1))
 			{
-				// Move the cursor to the new slot
-				cursor.box = &cursor.bk;
-				cursor.box->row = (py - 40) / 24;
-				cursor.box->col = (px - 184) / 32;
-
-				// Update the current Pokémon
-				boxSelectViewPkm();
-
-				// Move the selected Pokémon (drop)
-				boxSelectMovePokemon();
+				marginLeft = 184;
 			}
-			// If the touchPosition is outside the PC/BK touchArea
+
+			// If the touchPosition is within a Box touchArea
+			if (marginLeft > 0)
+			{
+				cursor.box = (marginLeft == 8 ? &cursor.pc : &cursor.bk);
+				cursor.box->row = (py - 40) / 24;
+				cursor.box->col = (px - marginLeft) / 32;
+
+				computeSlot(cursor.box);
+
+				// Check if the new slot is in-capacity
+				if (cursor.box->slot > cursor.box->vBox->capacity)
+				{
+					cursor.box->row = (cursor.box->vBox->capacity-1) / BOX_COL_PKM_COUNT;
+					cursor.box->col = (cursor.box->vBox->capacity-1) % BOX_COL_PKM_COUNT;
+
+					// Update the current Pokémon
+					boxSelectViewPkm();
+				}
+				else
+				{
+					// Update the current Pokémon
+					boxSelectViewPkm();
+
+					// Move the selected Pokémon (drop)
+					boxSelectMovePokemon();
+					
+				}
+			}
 			else
 			{
 				// Cancel the dragged move
