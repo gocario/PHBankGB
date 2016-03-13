@@ -1,15 +1,18 @@
 #include "personal.h"
 #include "pkdir.h"
+#include "data.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 #define PI_SIZE (0x5+1)
+#define PMI_SIZE (0x3+1)
 #define PERSONAL_SIZE (PI_SIZE*(PKM_COUNT+1))
+#define PERSONAL_MOVE_SIZE (PMI_SIZE*MOVE_COUNT)
 
-static PersonalInfo personalInfo; // Empty personal
 static PersonalInfo personalInfos[PKM_COUNT+1];
+static PersonalMoveInfo personalMoveInfos[MOVE_COUNT];
 
 static PersonalInfo* PersonalInfoImport(PersonalInfo* pInfo, const uint8_t* buf)
 {
@@ -20,7 +23,21 @@ static PersonalInfo* PersonalInfoImport(PersonalInfo* pInfo, const uint8_t* buf)
 	pInfo->DEF = buf[0x2];
 	pInfo->SPE = buf[0x3];
 	pInfo->SPC = buf[0x4];
-	pInfo->BST = pInfo->HP + pInfo->ATK + pInfo->DEF + pInfo->SPE + pInfo->SPC;
+
+	// memcpy(pInfo, buf, sizeof(PersonalInfo));
+
+	return pInfo;
+}
+
+static PersonalMoveInfo* PersonalMoveInfoImport(PersonalMoveInfo* pInfo, const uint8_t* buf)
+{
+	if (!buf) return NULL;
+
+	pInfo->id = buf[0x0];
+	pInfo->PP = buf[0x1];
+	pInfo->type = buf[0x2];
+
+	// memcpy(pInfo, buf, sizeo(PersonalMoveInfo));
 
 	return pInfo;
 }
@@ -31,16 +48,24 @@ static void PersonalImport(const uint8_t* buf)
 	{
 		PersonalInfoImport(&personalInfos[i], buf+PI_SIZE*i);
 	}
-	memset(&personalInfo, 0, sizeof(PersonalInfo));
+}
+
+static void PersonalMoveImport(const uint8_t* buf)
+{
+	for (uint8_t i = 0; i < MOVE_COUNT; i++)
+	{
+		PersonalMoveInfoImport(&personalMoveInfos[i], buf+PMI_SIZE*i);
+	}
 }
 
 Result PersonalLoad(void)
 {
+	FILE* fp;
 	Result ret = -1;
 	uint16_t bytesRead = 0;
 
 	printf("Opening personal file...\n");
-	FILE* fp = fopen(DATA_FOLDER "personal_gb", "rb");
+	fp = fopen(DATA_FOLDER "personal_gb", "rb");
 	if (fp)
 	{
 		uint8_t* buf = (uint8_t*) malloc(PERSONAL_SIZE);
@@ -60,10 +85,33 @@ Result PersonalLoad(void)
 		free(buf);
 	}
 
+	return ret; // TODO: Remove when personal_move_gb file
+
+	printf("Opening personal file...\n");
+	fp = fopen(DATA_FOLDER "personal_move_gb", "rb");
+	if (fp)
+	{
+		uint8_t* buf = (uint8_t*) malloc(PERSONAL_MOVE_SIZE);
+
+		printf("Reading personal file...");
+		bytesRead = fread(buf, 1, PERSONAL_MOVE_SIZE, fp);
+
+		if (ferror(fp)) printf(" ERROR\n");
+		else printf(" OK\n");
+		printf("  Read %d/%d bytes\n", bytesRead, PERSONAL_MOVE_SIZE);
+
+		ret = !ferror(fp);
+		fclose(fp);
+
+		PersonalMoveImport(buf);
+
+		free(buf);
+	}
+
 	return ret;
 }
 
 const PersonalInfo* Personal(DEX_Species species)
 {
-	return species > SPECIES_MISSINGNO && species <= SPECIES_MEW ? &personalInfos[species] : &personalInfo;
+	return &personalInfos[species > SPECIES_MISSINGNO && species <= SPECIES_MEW ? species : 0];
 }
