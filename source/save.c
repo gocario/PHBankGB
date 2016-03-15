@@ -460,7 +460,7 @@ Result saveReadFile(uint8_t* save, const char* path)
 	uint32_t bytesRead = 0;
 
 	printf("Reading save file...");
-	ret = FS_ReadFile(path, save, &saveArchive, SAVE_SIZE, &bytesRead);
+	ret = FS_ReadFile(path, save, SAVE_SIZE, &saveArchive, &bytesRead);
 
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
