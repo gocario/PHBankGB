@@ -72,12 +72,9 @@ int main(void)
 		error |= BIT(7);
 	}
 
-	// TODO: Remove the while loop for 3dsx build
-	while (!error && aptMainLoop())
-	{
-
-	titleid = 0x0004000000171800; // Pokémon Yellow	(EUR) (FR)
-	// titleid = 0x0004000000170D00; // Pokémon Green	(JPN) (JP)
+	aptOpenSession();
+	APT_GetProgramID(&titleid);
+	aptCloseSession();
 
 	ret = gfxLoadFrame(titleid);
 	if (R_FAILED(ret))
@@ -119,7 +116,6 @@ int main(void)
 	} // while (TS_Loop())
 #else
 	gfxFreeFrame();
-	} // while (aptMainLoop())
 	FS_Exit();
 #endif
 

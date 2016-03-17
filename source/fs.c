@@ -167,15 +167,28 @@ Result FSCIA_Exit(void)
 
 #else
 
+static Handle fsHandle;
+
 Result FS_Init(void)
 {
 	Result ret = 1;
 
 	debug_print("FS_Init:\n");
 
+	ret = srvGetServiceHandleDirect(&fsHandle, "fs:USER");
+	r(" > srvGetServiceHandleDirect: %lx\n", ret);
+	if (R_FAILED(ret)) return ret;
+
+	ret = FSUSER_Initialize(fsHandle);
+	r(" > FSUSER_Initialize: %lx\n", ret);
+	if (R_FAILED(ret)) return ret;
+
+	fsUseSession(fsHandle, false);
+	debug_print(" > fsUseSession\n");
+
 	if (!saveInitialized)
 	{
-		saveArchive = (FS_Archive) { ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, NULL) };
+		saveArchive = (FS_Archive) { ARCHIVE_SAVEDATA, fsMakePath(PATH_EMPTY, NULL) };
 
 		ret = FSUSER_OpenArchive(&saveArchive);
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
@@ -210,6 +223,12 @@ Result FS_Exit(void)
 	{
 		debug_print(" > Save not initialized\n");
 	}
+
+	fsEndUseSession();
+	debug_print(" > fsEndUseSession\n");
+
+	ret = svcCloseHandle(fsHandle);
+	r(" > svcCloseHandle: %lx\n", ret);
 
 	return ret;
 }
