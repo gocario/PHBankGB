@@ -578,7 +578,7 @@ static void boxSelectMovePokemon(void)
 		if (cursor.sPkm != cursor.vPkm)
 		{
 			// Swap the selected Pokémon with the current Pokémon
-			bool moved = saveMovePkm(cursor.sPkm, cursor.vPkm, cursor.sSlot.inBank, cursor.box->inBank);
+			bool moved = saveMovePkm(cursor.vPkm, cursor.sPkm, cursor.sSlot.inBank, cursor.box->inBank);
 
 			// If the Pokémon had moved
 			if (moved)

@@ -233,27 +233,27 @@ SAV_Pokemon* saveGetPkm(uint8_t box, uint8_t slot, bool inBank);
 
 /**
  * @brief Swaps two Pokémon.
- * @param src The Pokémon source.
- * @param dst The Pokémon destination.
+ * @param[out] dst The Pokémon destination.
+ * @param[in] src The Pokémon source.
  * @param srcBanked Whether the source is in bank.
  * @param dstBanked Whether the destination is in bank.
  * @return Whether the Pokémon have been swapped.
  */
-bool saveMovePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked);
+bool saveMovePkm(SAV_Pokemon* dst, SAV_Pokemon* src, bool srcBanked, bool dstBanked);
 
 /**
  * @brief Pastes a Pokémon over another.
- * @param src The Pokémon source.
- * @param dst The Pokémon destination.
+ * @param[out] dst The Pokémon destination.
+ * @param[in] src The Pokémon source.
  * @param srcBanked Whether the source is in bank.
  * @param dstBanked Whether the destination is in bank.
  * @return Whether the Pokémon has been pasted.
  */
-bool savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked);
+bool savePastePkm(SAV_Pokemon* dst, SAV_Pokemon* src, bool srcBanked, bool dstBanked);
 
 /**
  * @briefs Checks if a Pokémon is empty.
- * @param pkm The Pokémon.
+ * @param[in] pkm The Pokémon.
  * @return Whether the Pokémon is empty.
  */
 bool saveIsPkmEmpty(const SAV_Pokemon* pkm);

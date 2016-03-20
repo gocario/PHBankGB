@@ -397,11 +397,11 @@ SAV_Pokemon* saveGetPkm(uint8_t box, uint8_t slot, bool inBank)
 
 /**
  * @brief Swaps two Pokémon.
- * @param src The Pokémon source.
- * @param dst The Pokémon destination.
+ * @param[out] dst The Pokémon destination.
+ * @param[in] src The Pokémon source.
  * @return Whether the Pokémon have been swapped.
  */
-static bool _saveMovePkm(SAV_Pokemon* src, SAV_Pokemon* dst)
+static bool _saveMovePkm(SAV_Pokemon* dst, SAV_Pokemon* src)
 {
 	// We copy the pokemon data
 	SAV_Pokemon tmp;
@@ -416,18 +416,18 @@ static bool _saveMovePkm(SAV_Pokemon* src, SAV_Pokemon* dst)
 	return true;
 }
 
-bool saveMovePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked)
+bool saveMovePkm(SAV_Pokemon* dst, SAV_Pokemon* src, bool srcBanked, bool dstBanked)
 {
-	return _saveMovePkm(src, dst);
+	return _saveMovePkm(dst, src);
 }
 
 /**
  * @brief Pastes a Pokémon over another.
- * @param src The Pokémon source.
- * @param dst The Pokémon destination.
+ * @param[out] dst The Pokémon destination.
+ * @param[in] src The Pokémon source.
  * @return Whether the Pokémon has been pasted.
  */
-static bool _savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst)
+static bool _savePastePkm(SAV_Pokemon* dst, SAV_Pokemon* src)
 {
 	// We copy the pokemon data
 	memcpy(dst, src, sizeof(SAV_Pokemon));
@@ -438,9 +438,9 @@ static bool _savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst)
 	return true;
 }
 
-bool savePastePkm(SAV_Pokemon* src, SAV_Pokemon* dst, bool srcBanked, bool dstBanked)
+bool savePastePkm(SAV_Pokemon* dst, SAV_Pokemon* src, bool srcBanked, bool dstBanked)
 {
-	return _savePastePkm(src, dst);
+	return _savePastePkm(dst, src);
 }
 
 bool saveIsPkmEmpty(const SAV_Pokemon* pkm)
