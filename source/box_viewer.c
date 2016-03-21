@@ -5,6 +5,7 @@
 #include "font.h"
 #include "data.h"
 #include "save.h"
+#include "personal.h"
 
 #include <stdio.h>
 
@@ -454,7 +455,7 @@ static void boxViewerDrawTop(void)
 				fontDrawString8(240, 128+i*16, dataMove(pkm->moves[i]));
 				fontDrawFromRightUInt32(304, 136+i*16, pkm->PPs[i]);
 				fontDrawChar8(312, 136+i*16, CHAR8_SLASH);
-				fontDrawFromRightUInt32(328, 136+i*16, pkm->PPs[i]); // TODO: PersonalMove
+				fontDrawFromRightUInt32(328, 136+i*16, PersonalMove(pkm->moves[i])->PP); // TODO: PersonalMove
 			}
 		}
 

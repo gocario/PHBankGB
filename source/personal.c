@@ -75,8 +75,6 @@ Result PersonalLoad(void)
 		free(buf);
 	}
 
-	return ret; // TODO: Remove when personal_move_gb file
-
 	printf("Opening personal file...\n");
 	fp = fopen(DATA_FOLDER "personal_move_gb", "rb");
 	if (fp)
@@ -108,5 +106,5 @@ const PersonalInfo* Personal(DEX_Species species)
 
 const PersonalMoveInfo* PersonalMove(uint8_t move)
 {
-	return &personalMoveInfos[move > 0 && move < 165 ? move : 0];
+	return &personalMoveInfos[move > 0 && move <= 165 ? move : 0];
 }
