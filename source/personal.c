@@ -33,11 +33,7 @@ static PersonalMoveInfo* PersonalMoveInfoImport(PersonalMoveInfo* pInfo, const u
 {
 	if (!buf) return NULL;
 
-	pInfo->id = buf[0x0];
-	pInfo->PP = buf[0x1];
-	pInfo->type = buf[0x2];
-
-	// memcpy(pInfo, buf, sizeo(PersonalMoveInfo));
+	memcpy(pInfo, buf, sizeof(PersonalMoveInfo));
 
 	return pInfo;
 }
@@ -114,4 +110,9 @@ Result PersonalLoad(void)
 const PersonalInfo* Personal(DEX_Species species)
 {
 	return &personalInfos[species > SPECIES_MISSINGNO && species <= SPECIES_MEW ? species : 0];
+}
+
+const PersonalMoveInfo* PersonalMove(uint8_t move)
+{
+	return &personalMoveInfos[move];
 }
