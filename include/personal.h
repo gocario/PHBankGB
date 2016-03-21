@@ -7,7 +7,7 @@
 /// 
 typedef struct
 {
-	// uint8_t dex;
+	uint8_t dex;
 	uint8_t HP, ATK, DEF, SPE, SPC;
 	// uint8_t padding;
 } PersonalInfo;
