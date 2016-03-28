@@ -72,9 +72,13 @@ int main(void)
 		error |= BIT(7);
 	}
 
+#ifdef DEBUG
+	titleid = 0x0004000000171800; // Pokémon Jaune
+#else
 	aptOpenSession();
 	APT_GetProgramID(&titleid);
 	aptCloseSession();
+#endif
 
 	ret = gfxLoadFrame(titleid);
 	if (R_FAILED(ret))

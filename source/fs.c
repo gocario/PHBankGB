@@ -194,6 +194,18 @@ Result FS_Init(void)
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
 
 		saveInitialized = R_SUCCEEDED(ret); // true
+
+#ifdef DEBUG
+		if (!saveInitialized)
+		{
+			saveArchive = (FS_Archive) { ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, NULL) };
+
+			ret = FSUSER_OpenArchive(&saveArchive);
+			r(" > FSUSER_OpenArchive: %lx\n", ret);
+
+			saveInitialized = R_SUCCEEDED(ret); // true
+		}
+#endif
 	}
 	else
 	{
