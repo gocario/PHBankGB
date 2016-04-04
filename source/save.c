@@ -40,7 +40,7 @@ SAV_Bank sbank;
 SAV_GameVersion vgame;
 SAV_GameLang lgame;
 
-Result saveLoad(void)
+Result saveLoad(const char* path)
 {
 	Result ret;
 
@@ -48,7 +48,7 @@ Result saveLoad(void)
 	lgame = saveGetGameLang(titleid);
 	if (vgame == NOT_POKEMON || lgame == NOT_POKEMON) return -2;
 
-	ret = saveReadFile(save, ROOT_FOLDER SAVEGB_FILE);
+	ret = saveReadFile(save, path ? path : ROOT_FOLDER SAVEGB_FILE));
 	if (R_FAILED(ret)) return ret;
 
 	saveReadData(save, &sgame);
@@ -57,10 +57,10 @@ Result saveLoad(void)
 	return (true && true ? 0 : -5);
 }
 
-void saveSave(void)
+void saveSave(const char* path)
 {
 	saveWriteData(save, &sgame);
-	saveWriteFile(save, ROOT_FOLDER SAVEGB_FILE);
+	saveWriteFile(save, path ? path : ROOT_FOLDER SAVEGB_FILE);
 
 	mkdir(BASE_FOLDER, 0700);
 	mkdir(BANK_FOLDER, 0700);

@@ -16,7 +16,7 @@
 #include "ts.h"
 #endif
 
-int main(void)
+int main(int argc, char* argv[])
 {
 	Result ret = 0, error = 0;
 
@@ -88,7 +88,7 @@ int main(void)
 	}
 #endif
 
-	ret = saveLoad();
+	ret = saveLoad(argc > 1 ? argv[1] : NULL);
 	if (R_FAILED(ret))
 	{
 		// Save

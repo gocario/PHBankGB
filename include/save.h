@@ -190,13 +190,15 @@ extern SAV_GameLang lgame;
 
 /**
  * @brief Loads and initializes the save module.
+ * @param path[in] The path of the savefile.
  */
-Result saveLoad(void);
+Result saveLoad(const char* path);
 
 /**
  * @brief Saves the save module.
+ * @param path[in] The path of the savefile.
  */
-void saveSave(void);
+void saveSave(const char* path);
 
 /**
  * @brief Gets the game version of a game.
