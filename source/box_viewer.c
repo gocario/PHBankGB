@@ -98,7 +98,7 @@ static uint8_t boxGetWidth(uint8_t row);
 void boxViewerInitialize(void)
 {
 	cursor.pc.inBank = false;
-	cursor.pc.box = 0;
+	cursor.pc.box = saveGetCurrentBox(save);
 	cursor.pc.row = 0;
 	cursor.pc.col = 0;
 	cursor.pc.slot = 0;
@@ -362,7 +362,6 @@ void boxViewerUpdate(void)
 
 					// Move the selected Pokémon (drop)
 					boxSelectMovePokemon();
-					
 				}
 			}
 			else

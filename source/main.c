@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 			boxViewerDraw();
 		}
 
-		saveSave();
+		saveSave(argc > 1 ? argv[1] : NULL);
 	}
 
 #ifdef __cia

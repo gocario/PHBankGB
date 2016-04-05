@@ -48,7 +48,7 @@ Result saveLoad(const char* path)
 	lgame = saveGetGameLang(titleid);
 	if (vgame == NOT_POKEMON || lgame == NOT_POKEMON) return -2;
 
-	ret = saveReadFile(save, path ? path : ROOT_FOLDER SAVEGB_FILE));
+	ret = saveReadFile(save, path ? path : ROOT_FOLDER SAVEGB_FILE);
 	if (R_FAILED(ret)) return ret;
 
 	saveReadData(save, &sgame);
@@ -365,12 +365,7 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
 		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->sizePkm, pkmList->sizeName, pkmList->capacity);
 }
 
-/**
- * @brief Gets the current box id.
- * @param[in] save The savedata buffer.
- * @return The id of the current box.
- */
-static uint8_t saveGetCurrentBox(const uint8_t* save)
+uint8_t saveGetCurrentBox(const uint8_t* save)
 {
 	return (lgame == POKEMON_JP ? save[0x2842] : save[0x284C]) & 0x7F;
 }

@@ -215,6 +215,13 @@ SAV_GameVersion saveGetGameVersion(uint64_t titleid);
 SAV_GameLang saveGetGameLang(uint64_t titleid);
 
 /**
+ * @brief Gets the current box id.
+ * @param[in] save The savedata buffer.
+ * @return The id of the current box.
+ */
+uint8_t saveGetCurrentBox(const uint8_t* save);
+
+/**
  * @brief Gets a box from a list.
  * @param[in] save The savedata buffer.
  * @param box The id of the box.
