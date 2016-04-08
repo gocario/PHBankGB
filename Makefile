@@ -157,26 +157,20 @@ clean:
 #---------------------------------------------------------------------------------
 run: $(BUILD)
 	@echo run ...
-	@echo TODO: add citra path
-	H:/devkitPro/devkitCITRA/citra.exe $(TARGET).elf
+	$(DEVKITPRO)/devkitCITRA/citra.exe $(TARGET).elf
 
 #---------------------------------------------------------------------------------
 3dsx: $(BUILD)
-	@echo 3dsx ...
-	
+	@echo built ... $(TARGET).3dsx
+
 #---------------------------------------------------------------------------------
 cia: $(BUILD)
-	# @bannertool makebanner -o $(CIA_BANNER) -i $(CIA_BANNER_PNG) -ca $(CIA_BANNER_WAV)
-	# @echo built ... $(CIA_BANNER)
+#	@bannertool makebanner -o $(CIA_BANNER) -i $(CIA_BANNER_PNG) -ca $(CIA_BANNER_WAV)
+#	@echo built ... $(CIA_BANNER)
 #	@bannertool makesmdh -o $(CIA_SMDH) -i $(ICON) -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -fvisible
 #	@echo built ... $(TARGET).smdh
 	@makerom -f cia -target t -exefslogo -o $(TARGET).cia -elf $(TARGET).elf -rsf $(CIA_RSF) -banner $(CIA_BANNER) -icon $(CIA_SMDH)
 	@echo built ... $(TARGET).cia
-
-#---------------------------------------------------------------------------------
-send: $(BUILD)
-	@echo send ...
-	@echo TODO: add 3dslink cmd
 
 #---------------------------------------------------------------------------------
 else
