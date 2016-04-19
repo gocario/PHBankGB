@@ -136,7 +136,7 @@ uint8_t pokedexGetNational(uint8_t index)
 		case 0x7C: return  11; // Metapod
 		case 0x7D: return  12; // Butterfree
 		case 0x7E: return  68; // Machamp
-		case 0x80: return  54; // Golduck
+		case 0x80: return  55; // Golduck
 		case 0x81: return  97; // Hypno
 		case 0x82: return  42; // Golbat
 		case 0x83: return 150; // Mewtwo
