@@ -24,8 +24,20 @@ typedef enum
 	OFFSET_BOX_2 = 0x6000,			///< Second group of Pokémon list
 
 	/* Bank */
-	OFFSET_BBOX_1 = 0x100,		///< Bank box 1 Pokémon list
+	OFFSET_BBOX_1 = 0x100,			///< Bank box 1 Pokémon list
 } SAV_PokemonListOffset;
+
+/// 
+typedef enum
+{
+	/* Game */
+	OFFSET_POCKET_ALL = 0x25C9,		///< Pocket item list
+	OFFSET_POCKET_JAP = 0x0000,		///< Pocket item list				TODO /!\
+	OFFSET_STORAGE_ALL = 0x27E6,	///< Storage item list
+	OFFSET_STORAGE_JAP = 0x0000,	///< Storage item list				TODO /!\
+
+	OFFSET_BSTORAGE = 0x000,		///< Bank storage item list			TODO /!\
+} SAV_ItemListOffset;
 
 const uint16_t SaveConst__sizeSave = SAVE_SIZE;
 const uint16_t SaveConst__offsetPokedexOwned = 0x25A3;
@@ -342,7 +354,7 @@ static void saveExtractPokemonList(const uint8_t* save, SAV_PokemonList* pkmList
 	pkmList->sizeName = sizeName;
 	pkmList->capacity = capacity;
 
-	// printf("List %u/%u (x%u)\n", pkmList->count, pkmList->capacity, pkmList->size);
+	// printf("List %u/%u\n", pkmList->count, pkmList->capacity);
 
 	for (uint8_t i = 0; i < pkmList->capacity; i++)
 		saveExtractPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->sizePkm, pkmList->sizeName, pkmList->capacity);
@@ -363,6 +375,74 @@ static void saveInjectPokemonList(uint8_t* save, const SAV_PokemonList* pkmList,
 
 	for (uint8_t i = 0; i < pkmList->capacity; i++)
 		saveInjectPokemon(save + listOffset, &pkmList->slots[i], i, pkmList->sizePkm, pkmList->sizeName, pkmList->capacity);
+}
+
+/**
+ * @brief Reads an item from the savedata buffer.
+ * @param[in] save The savedata buffer to the list offset.
+ * @param[out] item The item.
+ * @param index The index in the list.
+ * @param capacity The capacity of the list.
+ */
+static void saveExtractItem(const uint8_t* save, SAV_Item* item, uint8_t index, uint8_t capacity)
+{
+	const uint8_t* itembuf;
+
+	// Count (1) + Item.index (index*2)
+	itembuf = save + 1 + index * 2;
+
+	item->index = itembuf[0x00];
+	item->count = itembuf[0x01];
+}
+
+/**
+ * @brief Writes an item to the savedata buffer.
+ * @param[in/out] save The savedata buffer to the list offset.
+ * @param[in] item The item.
+ * @param index The index in the list.
+ * @param capacity The capacity of the list.
+ */
+static void saveInjectItem(uint8_t* save, const SAV_Item* item, uint8_t index, uint8_t capacity)
+{
+	uint8_t* itembuf;
+
+	// Count (1) + Item.index (index*2)
+	itembuf = save + 1 + index * 2;
+
+	itembuf[0x00] = item->index;
+	itembuf[0x01] = item->count;
+}
+
+/**
+ * @brief Reads the data from a save to a structure.
+ * @param[in] save The savedata buffer.
+ * @param[out] itemList The item list to populate.
+ * @param listOffset The offset of the list.
+ */
+static void saveExtractItemList(const uint8_t* save, SAV_ItemList* itemList, SAV_ItemListOffset listOffset, uint8_t capacity)
+{
+	itemList->count = save[listOffset];
+	itemList->capacity = capacity
+
+	// printf("List %u/%u\n", itemList->count, itemList->capacity);
+
+	for (uint8_t i = 0; i < itemList->capacity; i++)
+		saveExtractItem(save + listOffset, &itemList->slots[i], i, itemList->capacity);
+}
+
+/**
+ * @brief Writes the data from a structure to a save.
+ * @param[in/out] save The savedata buffer.
+ * @param[in] itemList The item list to inject.
+ * @param listOffset The offset of the list.
+ */
+static void saveInjectItemList(uint8_t* save, const SAV_ItemList* itemList, SAV_ItemListOffset listOffset)
+{
+	save[listOffset] = itemList->count;
+	save[listOffset+2*itemList->count+1] = 0xFF;
+
+	for (uint8_t i = 0; i < itemList->capacity; i++)
+		saveInjectItem(save + listOffset, &itemList->slots[i], i, itemList->capacity);
 }
 
 uint8_t saveGetCurrentBox(const uint8_t* save)

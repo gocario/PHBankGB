@@ -6,10 +6,11 @@
 #define BANK_SIZE (0x8E00) // 0x8D28
 #define BOX_SIZE(c,sp,sn) (2+c*(1+sp+sn*2)) // (1+c+1+c*sp+c*sn+c*sn)
 #define POKEMON_LIST_MAX_COUNT (32) // Party: 6 | Box: 20 | BoxJP: 30 | BoxBK: 32
+#define ITEM_LIST_MAX_COUNT (100) // Pocket: 20 | PC: 50 | Bank: 100
 #define GAME_BOX_MAX_COUNT (12) // 12 | JP: 8
 #define BANK_BOX_MAX_COUNT (20) // 20
 
-#define NOT_POKEMON (0)
+#define NOT_POKEMON (0) // Definitely not a Pokémon
 
 /// 
 typedef enum
@@ -160,6 +161,22 @@ typedef struct
 	uint8_t capacity;	///< The max size of the list (<= POKEMON_LIST_MAX_COUNT)
 	char8_t title[11];	///< An emulated title box
 } SAV_PokemonList;
+
+/// 
+typedef struct
+{
+	uint8_t index;
+	uint8_t	count;
+} SAV_Item;
+
+/// 
+typedef struct
+{
+	uint8_t count;	///< The count of item (<= capacity)
+
+	// Extra attributes
+	uint8_t capacity;	///< The max size of the list (<= ITEM_LIST_MAX_COUNT)
+} SAV_ItemList;
 
 /// 
 typedef struct
