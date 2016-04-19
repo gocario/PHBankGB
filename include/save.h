@@ -173,6 +173,7 @@ typedef struct
 typedef struct
 {
 	uint8_t count;	///< The count of item (<= capacity)
+	SAV_Item slots[ITEM_LIST_MAX_COUNT];
 
 	// Extra attributes
 	uint8_t capacity;	///< The max size of the list (<= ITEM_LIST_MAX_COUNT)
