@@ -32,11 +32,11 @@ typedef enum
 {
 	/* Game */
 	OFFSET_POCKET_ALL = 0x25C9,		///< Pocket item list
-	OFFSET_POCKET_JAP = 0x0000,		///< Pocket item list				TODO /!\
+	OFFSET_POCKET_JAP = 0x0000,		///< Pocket item list				TODO !!
 	OFFSET_STORAGE_ALL = 0x27E6,	///< Storage item list
-	OFFSET_STORAGE_JAP = 0x0000,	///< Storage item list				TODO /!\
+	OFFSET_STORAGE_JAP = 0x0000,	///< Storage item list				TODO !!
 
-	OFFSET_BSTORAGE = 0x000,		///< Bank storage item list			TODO /!\
+	OFFSET_BSTORAGE = 0x000,		///< Bank storage item list			TODO !!
 } SAV_ItemListOffset;
 
 const uint16_t SaveConst__sizeSave = SAVE_SIZE;
@@ -422,7 +422,7 @@ static void saveInjectItem(uint8_t* save, const SAV_Item* item, uint8_t index, u
 static void saveExtractItemList(const uint8_t* save, SAV_ItemList* itemList, SAV_ItemListOffset listOffset, uint8_t capacity)
 {
 	itemList->count = save[listOffset];
-	itemList->capacity = capacity
+	itemList->capacity = capacity;
 
 	// printf("List %u/%u\n", itemList->count, itemList->capacity);
 

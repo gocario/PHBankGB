@@ -8,6 +8,7 @@
 #include "font.h"
 #include "save.h"
 #include "data.h"
+#include "error.h"
 #include "version.h"
 #include "personal.h"
 #include "box_viewer.h"
@@ -28,21 +29,21 @@ int main(int argc, char* argv[])
 	if (R_FAILED(ret))
 	{
 		// Graphics
-		error |= BIT(5);
+		error |= ERR_GRAPHICS;
 	}
 
 	ret = fontLoad();
 	if (R_FAILED(ret))
 	{
 		// Font
-		error |= BIT(4);
+		error |= ERR_FONT;
 	}
 
 	ret = PersonalLoad();
 	if (R_FAILED(ret))
 	{
 		// Data
-		error |= BIT(3);
+		error |= ERR_DATA;
 	}
 
 #ifdef __cia
@@ -53,7 +54,7 @@ int main(int argc, char* argv[])
 	if (R_FAILED(ret))
 	{
 		// Filesystem
-		error |= BIT(7);
+		error |= ERR_FILESYSTEM;
 	}
 
 	titleid = titleEntry.titleid;
@@ -62,14 +63,14 @@ int main(int argc, char* argv[])
 	if (R_FAILED(ret))
 	{
 		// Graphics
-		error |= BIT(5);
+		error |= ERR_GRAPHICS;
 	}
-#else
+#else // __3dsx
 	ret = FS_Init();
 	if (R_FAILED(ret))
 	{
 		// Filesystem
-		error |= BIT(7);
+		error |= ERR_FILESYSTEM;
 	}
 
 #ifdef DEBUG
@@ -84,7 +85,7 @@ int main(int argc, char* argv[])
 	if (R_FAILED(ret))
 	{
 		// Graphics
-		error |= BIT(5);
+		error |= ERR_GRAPHICS;
 	}
 #endif
 
@@ -92,7 +93,7 @@ int main(int argc, char* argv[])
 	if (R_FAILED(ret))
 	{
 		// Save
-		error |= BIT(2);
+		error |= ERR_SAVE;
 	}
 
 	if (!error)
@@ -118,7 +119,7 @@ int main(int argc, char* argv[])
 	gfxFreeFrame();
 	FSCIA_Exit();
 	} // while (TS_Loop())
-#else
+#else // __3dsx
 	gfxFreeFrame();
 	FS_Exit();
 #endif
@@ -130,6 +131,11 @@ int main(int argc, char* argv[])
 		// ^
 
 		printf("\nProblem happened: 0x%lx\n", error);
+		if (error & ERR_SAVE) printf(" \a Save\n");
+		if (error & ERR_DATA) printf(" \a Data\n");
+		if (error & ERR_FONT) printf(" \a Font\n");
+		if (error & ERR_GRAPHICS) printf(" \a Graphics\n");
+		if (error & ERR_FILESYSTEM) printf(" \a Filesystem\n");
 		printf("PHBankGB version: %08x\n", VERSION);
 		printf("Can't start the viewer.\n");
 		printf("Press any key to exit\n");
