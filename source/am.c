@@ -20,7 +20,7 @@ static const u32 pokemonTitleCount = 19-4;
 static const u64 pokemonTitleIDs[] = {
 	// 0x0004000000170C00, ///< Pokémon Red	(JPN) (JP)
 	// 0x0004000000170D00, ///< Pokémon Green	(JPN) (JP)
-	// 0x0004000000170E00, ///< Pokémon Blue?	(JPN) (JP) ??
+	// 0x0004000000170E00, ///< Pokémon Blue?	(JPN) (JP)
 	// 0x0004000000170F00, ///< Pokémon Yellow	(JPN) (JP)
 	0x0004000000171000, ///< Pokémon Red	(FREE) (EN)
 	0x0004000000171100, ///< Pokémon Blue	(FREE) (EN)
@@ -28,39 +28,16 @@ static const u64 pokemonTitleIDs[] = {
 	0x0004000000171300, ///< Pokémon Red	(EUR) (DE)
 	0x0004000000171400, ///< Pokémon Blue	(EUR) (DE)
 	0x0004000000171500, ///< Pokémon Yellow	(EUR) (DE)
-	0x0004000000171600, ///< Pokémon Red	(EUR) (FR) ??
+	0x0004000000171600, ///< Pokémon Red	(EUR) (FR)
 	0x0004000000171700, ///< Pokémon Blue	(EUR) (FR)
 	0x0004000000171800, ///< Pokémon Yellow	(EUR) (FR)
 	0x0004000000171900, ///< Pokémon Red	(EUR) (ES)
 	0x0004000000171A00, ///< Pokémon Blue	(EUR) (ES)
 	0x0004000000171B00, ///< Pokémon Yellow	(EUR) (ES)
-	0x0004000000171C00, ///< Pokémon Red	(EUR) (IT) ??
-	0x0004000000171D00, ///< Pokémon Blue	(EUR) (IT) ??
+	0x0004000000171C00, ///< Pokémon Red	(EUR) (IT)
+	0x0004000000171D00, ///< Pokémon Blue	(EUR) (IT)
 	0x0004000000171E00, ///< Pokémon Yellow	(EUR) (IT)
 	0x0000000000000000,	///< Not Pokémon
-};
-
-static const char* pokemonTitleName[] = {
-	// "Pokémon Red (Japanese)",
-	// "Pokémon Green (Japanese)",
-	// "Pokémon Blue (Japanese)",
-	// "Pokémon Yellow (Japanese)",
-	"Pokémon Red (English)",
-	"Pokémon Blue (English)",
-	"Pokémon Yellow (English)",
-	"Pokémon Red (Deutsch)",
-	"Pokémon Blue (Deutsch)",
-	"Pokémon Yellow (Deutsch)",
-	"Pokémon Red (Français)",
-	"Pokémon Blue (Français)",
-	"Pokémon Yellow (Français)",
-	"Pokémon Red (Español)",
-	"Pokémon Blue (Español)",
-	"Pokémon Yellow (Español)",
-	"Pokémon Red (Italian)",
-	"Pokémon Blue (Italian)",
-	"Pokémon Yellow (Italian)",
-	"Not Pokemon",
 };
 
 static Result AM_GetSmdh(AM_TitleMediaEntry* title)
@@ -76,7 +53,7 @@ static Result AM_GetSmdh(AM_TitleMediaEntry* title)
 	u32 archivePath[] = { title->titleid & 0xFFFFFFFF, (title->titleid >> 32) & 0xFFFFFFFF, title->mediatype, 0x00000000 };
 	u32 filePath[] = { 0x00000000, 0x00000000, 0x00000002, 0x6E6F6369, 0x00000000 };
 
-	ret = FSUSER_OpenFileDirectly(&fileHandle, (FS_Archive) { ARCHIVE_SAVEDATA_AND_CONTENT , (FS_Path) { PATH_BINARY, 16, archivePath } }, (FS_Path) { PATH_BINARY, 20, filePath }, FS_OPEN_READ, FS_ATTRIBUTE_NONE);
+	ret = FSUSER_OpenFileDirectly(&fileHandle, ARCHIVE_SAVEDATA_AND_CONTENT, (FS_Path) { PATH_BINARY, 16, archivePath }, (FS_Path) { PATH_BINARY, 20, filePath }, FS_OPEN_READ, FS_ATTRIBUTE_NONE);
 	r(" > FSUSER_OpenFileDirectly: %lx\n", ret);
 
 	if (R_SUCCEEDED(ret))
@@ -97,14 +74,6 @@ static Result AM_GetSmdh(AM_TitleMediaEntry* title)
 	r(" > FSFILE_Close\n");
 
 	return ret;
-}
-
-const char* AM_GetPokemonTitleName(u64 titleID)
-{
-	for (u32 ii = 0; ii < pokemonTitleCount; ii++)
-		if	(titleID == pokemonTitleIDs[ii])
-			return pokemonTitleName[ii];
-	return pokemonTitleName[pokemonTitleCount];
 }
 
 Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)

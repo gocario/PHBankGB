@@ -535,7 +535,7 @@ Result saveReadFile(uint8_t* save, const char* path)
 	uint32_t bytesRead = 0;
 
 	printf("Reading save file...");
-	ret = FS_ReadFile(path, save, SAVE_SIZE, &saveArchive, &bytesRead);
+	ret = FS_ReadFile(path, save, SAVE_SIZE, saveArchive, &bytesRead);
 
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
@@ -550,12 +550,12 @@ Result saveWriteFile(const uint8_t* save, const char* path)
 	uint32_t bytesWritten = 0;
 
 	printf("Deleting old save file...");
-	ret = FS_DeleteFile(path, &saveArchive);
+	ret = FS_DeleteFile(path, saveArchive);
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
 
 	printf("Writing save file...");
-	ret = FS_WriteFile(path, save, SAVE_SIZE, &saveArchive, &bytesWritten);
+	ret = FS_WriteFile(path, save, SAVE_SIZE, saveArchive, &bytesWritten);
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n  Written %ld/%d bytes\n", bytesWritten, SAVE_SIZE);
 

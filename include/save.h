@@ -288,7 +288,7 @@ bool saveIsPkmEmpty(const SAV_Pokemon* pkm);
 /**
  * @todo jp
  */
-uint8_t getBoxCount(bool inBank);
+uint8_t saveGetBoxCount(bool inBank);
 
 /**
  * @brief Gets the name of the game's trainer.

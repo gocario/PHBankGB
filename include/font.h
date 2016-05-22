@@ -112,7 +112,7 @@ uint16_t fontDrawUInt8(int16_t x, int16_t y, int8_t v);
 uint16_t fontDrawFromRightUInt32(int16_t x, int16_t y, uint32_t v);
 
 /**
- * @brief Draws an uint8_t number using the glyph sheet with right padding zeros.
+ * @brief Draws an uint8_t number using the glyph sheet with left padding zeros.
  * @param x The x position.
  * @param y The y position.
  * @param v The uint8_t number.
@@ -120,7 +120,7 @@ uint16_t fontDrawFromRightUInt32(int16_t x, int16_t y, uint32_t v);
 uint16_t fontDrawPaddingUInt8(int16_t x, int16_t y, uint8_t v);
 
 /**
- * @brief Draws an uint16_t number using the glyph sheet with right padding zeros.
+ * @brief Draws an uint16_t number using the glyph sheet with left padding zeros.
  * @param x The x position.
  * @param y The y position.
  * @param v The uint16_t number.
