@@ -16,12 +16,12 @@
 typedef enum
 {
 	/* Game */
-	OFFSET_PARTY_ALL = 0x2F2C,			///< Party Pokémon list
-	OFFSET_PARTY_JAP = 0x2ED5,			///< Party Pokémon list
-	OFFSET_CURRENT_IDX_ALL = 0x284C,	///< Current Box index Pokémon list
-	OFFSET_CURRENT_IDX_JAP = 0x2842,	///< Current Box index Pokémon list
-	OFFSET_CURRENT_ALL = 0x30C0,		///< Current Box Pokémon list
-	OFFSET_CURRENT_JAP = 0x302D,		///< Current Box Pokémon list
+	OFFSET_PARTY_FSAV = 0x2F2C,			///< Party Pokémon list
+	OFFSET_PARTY_JSAV = 0x2ED5,			///< Party Pokémon list
+	OFFSET_CURRENT_IDX_FSAV = 0x284C,	///< Current Box index Pokémon list
+	OFFSET_CURRENT_IDX_JSAV = 0x2842,	///< Current Box index Pokémon list
+	OFFSET_CURRENT_FSAV = 0x30C0,		///< Current Box Pokémon list
+	OFFSET_CURRENT_JSAV = 0x302D,		///< Current Box Pokémon list
 	OFFSET_BOX_1 = 0x4000,				///< First group of Pokémon list
 	OFFSET_BOX_2 = 0x6000,				///< Second group of Pokémon list
 
@@ -33,10 +33,10 @@ typedef enum
 typedef enum
 {
 	/* Game */
-	OFFSET_POCKET_ALL = 0x25C9,		///< Pocket item list
-	OFFSET_POCKET_JAP = 0x25C4,		///< Pocket item list
-	OFFSET_STORAGE_ALL = 0x27E6,	///< Storage item list
-	OFFSET_STORAGE_JAP = 0x27DC,	///< Storage item list
+	OFFSET_POCKET_FSAV = 0x25C9,		///< Pocket item list
+	OFFSET_POCKET_JSAV = 0x25C4,		///< Pocket item list
+	OFFSET_STORAGE_FSAV = 0x27E6,	///< Storage item list
+	OFFSET_STORAGE_JSAV = 0x27DC,	///< Storage item list
 
 	OFFSET_BSTORAGE = 0x000,		///< Bank storage item list
 } SAV_ItemListOffset;
@@ -44,16 +44,16 @@ typedef enum
 ///
 typedef enum
 {
-	OFFSET_OT_NAME_ALL = 0x2598,		//< Trainer namee
-	OFFSET_OT_NAME_JAP = 0x2598,		//< Trainer name
-	OFFSET_RIVAL_NAME_ALL = 0x25F6,		//< Rival name
-	OFFSET_RIVAL_NAME_JAP = 0x25F1,		//< Rival name
-	OFFSET_POKEDEX_OWNED_ALL = 0x25A3,	//< Pokédex owned
-	OFFSET_POKEDEX_OWNED_JAP = 0x259E,	//< Pokédex owned
-	OFFSET_POKEDEX_SEEN_ALL = 0x25B6,	//< Pokédex seen
-	OFFSET_POKEDEX_SEEN_JAP = 0x25B1,	//< Pokédex seen
-	OFFSET_CHECKSUM_ALL = 0x3523,		//< Checksum
-	OFFSET_CHECKSUM_JAP = 0x3594,		//< Checksum
+	OFFSET_OT_NAME_FSAV = 0x2598,		//< Trainer namee
+	OFFSET_OT_NAME_JSAV = 0x2598,		//< Trainer name
+	OFFSET_RIVAL_NAME_FSAV = 0x25F6,		//< Rival name
+	OFFSET_RIVAL_NAME_JSAV = 0x25F1,		//< Rival name
+	OFFSET_POKEDEX_OWNED_FSAV = 0x25A3,	//< Pokédex owned
+	OFFSET_POKEDEX_OWNED_JSAV = 0x259E,	//< Pokédex owned
+	OFFSET_POKEDEX_SEEN_FSAV = 0x25B6,	//< Pokédex seen
+	OFFSET_POKEDEX_SEEN_JSAV = 0x25B1,	//< Pokédex seen
+	OFFSET_CHECKSUM_FSAV = 0x3523,		//< Checksum
+	OFFSET_CHECKSUM_JSAV = 0x3594,		//< Checksum
 } SAV_Offset;
 
 uint64_t titleid;
@@ -459,7 +459,7 @@ static void saveInjectItemList(uint8_t* save, const SAV_ItemList* itemList, SAV_
 
 uint8_t saveGetCurrentBox(const uint8_t* save)
 {
-	return (lgame == POKEMON_JP ? save[OFFSET_CURRENT_IDX_JAP] : save[OFFSET_CURRENT_IDX_ALL]) & 0x7F;
+	return (lgame == POKEMON_JP ? save[OFFSET_CURRENT_IDX_JSAV] : save[OFFSET_CURRENT_IDX_FSAV]) & 0x7F;
 }
 
 SAV_PokemonList* gameGetBox(uint8_t box)
@@ -538,22 +538,22 @@ bool saveIsPkmEmpty(const SAV_Pokemon* pkm)
 
 const char8_t* saveGetTrainerName(void)
 {
-	return save + (lgame == POKEMON_JP ? OFFSET_OT_NAME_JAP : OFFSET_OT_NAME_ALL);
+	return save + (lgame == POKEMON_JP ? OFFSET_OT_NAME_JSAV : OFFSET_OT_NAME_FSAV);
 }
 
 const char8_t* saveGetRivalName(void)
 {
-	return save + (lgame == POKEMON_JP ? OFFSET_RIVAL_NAME_JAP : OFFSET_RIVAL_NAME_ALL);
+	return save + (lgame == POKEMON_JP ? OFFSET_RIVAL_NAME_JSAV : OFFSET_RIVAL_NAME_FSAV);
 }
 
 uint8_t* saveGetPokedexOwned(void)
 {
-	return save + (lgame == POKEMON_JP ? OFFSET_POKEDEX_OWNED_JAP : OFFSET_POKEDEX_OWNED_ALL);
+	return save + (lgame == POKEMON_JP ? OFFSET_POKEDEX_OWNED_JSAV : OFFSET_POKEDEX_OWNED_FSAV);
 }
 
 uint8_t* saveGetPokedexSeen(void)
 {
-	return save + (lgame == POKEMON_JP ? OFFSET_POKEDEX_SEEN_JAP : OFFSET_POKEDEX_SEEN_ALL);
+	return save + (lgame == POKEMON_JP ? OFFSET_POKEDEX_SEEN_JSAV : OFFSET_POKEDEX_SEEN_FSAV);
 }
 
 Result saveReadFile(uint8_t* save, const char* path)
@@ -596,7 +596,7 @@ void saveReadData(const uint8_t* save, SAV_Game* sgame, SAV_GameLang lgame)
 	sgame->boxCapacity = (lgame == POKEMON_JP ? 30 : 20);
 	sgame->nameSize = (lgame == POKEMON_JP ? 0x6 : 0xB);
 
-	uint16_t offsetCurrent = (lgame == POKEMON_JP ? OFFSET_CURRENT_JAP : OFFSET_CURRENT_ALL);
+	uint16_t offsetCurrent = (lgame == POKEMON_JP ? OFFSET_CURRENT_JSAV : OFFSET_CURRENT_FSAV);
 	uint16_t boxSize = BOX_SIZE(sgame->boxCapacity,0x21,sgame->nameSize);
 
 	for (uint8_t i = 0; i < sgame->boxCount; i++)
@@ -610,7 +610,7 @@ void saveReadData(const uint8_t* save, SAV_Game* sgame, SAV_GameLang lgame)
 
 void saveWriteData(uint8_t* save, SAV_Game* sgame)
 {
-	uint16_t offsetCurrent = (lgame == POKEMON_JP ? OFFSET_CURRENT_JAP : OFFSET_CURRENT_ALL);
+	uint16_t offsetCurrent = (lgame == POKEMON_JP ? OFFSET_CURRENT_JSAV : OFFSET_CURRENT_FSAV);
 	uint16_t boxSize = BOX_SIZE(sgame->boxCapacity,0x21,sgame->nameSize);
 
 	for (uint8_t iB = 0; iB < sgame->boxCount; iB++)
@@ -665,7 +665,7 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 void saveFixChecksum(uint8_t* save)
 {
 	uint8_t chk = 0;
-	uint16_t chk_offset = (lgame == POKEMON_JP ? OFFSET_CHECKSUM_JAP : OFFSET_CHECKSUM_ALL);
+	uint16_t chk_offset = (lgame == POKEMON_JP ? OFFSET_CHECKSUM_JSAV : OFFSET_CHECKSUM_FSAV);
 
 	// [0x2598 -> checksum_offset]
 	for (uint16_t off = 0x2598; off < chk_offset; off++)
