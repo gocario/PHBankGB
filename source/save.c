@@ -16,15 +16,17 @@
 typedef enum
 {
 	/* Game */
-	OFFSET_PARTY_ALL = 0x2F2C,		///< Party Pokémon list
-	OFFSET_PARTY_JAP = 0x2ED5,		///< Party Pokémon list
-	OFFSET_CURRENT_ALL = 0x30C0,	///< Current Box Pokémon list
-	OFFSET_CURRENT_JAP = 0x302D,	///< Current Box Pokémon list
-	OFFSET_BOX_1 = 0x4000,			///< First group of Pokémon list
-	OFFSET_BOX_2 = 0x6000,			///< Second group of Pokémon list
+	OFFSET_PARTY_ALL = 0x2F2C,			///< Party Pokémon list
+	OFFSET_PARTY_JAP = 0x2ED5,			///< Party Pokémon list
+	OFFSET_CURRENT_IDX_ALL = 0x284C,	///< Current Box index Pokémon list
+	OFFSET_CURRENT_IDX_JAP = 0x2842,	///< Current Box index Pokémon list
+	OFFSET_CURRENT_ALL = 0x30C0,		///< Current Box Pokémon list
+	OFFSET_CURRENT_JAP = 0x302D,		///< Current Box Pokémon list
+	OFFSET_BOX_1 = 0x4000,				///< First group of Pokémon list
+	OFFSET_BOX_2 = 0x6000,				///< Second group of Pokémon list
 
 	/* Bank */
-	OFFSET_BBOX_1 = 0x100,			///< Bank box 1 Pokémon list
+	OFFSET_BBOX_1 = 0x100,			///< First bank group of Pokémon list
 } SAV_PokemonListOffset;
 
 /// 
@@ -32,17 +34,27 @@ typedef enum
 {
 	/* Game */
 	OFFSET_POCKET_ALL = 0x25C9,		///< Pocket item list
-	OFFSET_POCKET_JAP = 0x0000,		///< Pocket item list				TODO !!
+	OFFSET_POCKET_JAP = 0x25C4,		///< Pocket item list
 	OFFSET_STORAGE_ALL = 0x27E6,	///< Storage item list
-	OFFSET_STORAGE_JAP = 0x0000,	///< Storage item list				TODO !!
+	OFFSET_STORAGE_JAP = 0x27DC,	///< Storage item list
 
-	OFFSET_BSTORAGE = 0x000,		///< Bank storage item list			TODO !!
+	OFFSET_BSTORAGE = 0x000,		///< Bank storage item list
 } SAV_ItemListOffset;
 
-const uint16_t SaveConst__sizeSave = SAVE_SIZE;
-const uint16_t SaveConst__offsetPokedexOwned = 0x25A3;
-const uint16_t SaveConst__offsetPokedexSeen = 0x25B6;
-const uint16_t SaveConst__offsetChecksum = 0x3523;
+///
+typedef enum
+{
+	OFFSET_OT_NAME_ALL = 0x2598,		//< Trainer namee
+	OFFSET_OT_NAME_JAP = 0x2598,		//< Trainer name
+	OFFSET_RIVAL_NAME_ALL = 0x25F6,		//< Rival name
+	OFFSET_RIVAL_NAME_JAP = 0x25F1,		//< Rival name
+	OFFSET_POKEDEX_OWNED_ALL = 0x25A3,	//< Pokédex owned
+	OFFSET_POKEDEX_OWNED_JAP = 0x259E,	//< Pokédex owned
+	OFFSET_POKEDEX_SEEN_ALL = 0x25B6,	//< Pokédex seen
+	OFFSET_POKEDEX_SEEN_JAP = 0x25B1,	//< Pokédex seen
+	OFFSET_CHECKSUM_ALL = 0x3523,		//< Checksum
+	OFFSET_CHECKSUM_JAP = 0x3594,		//< Checksum
+} SAV_Offset;
 
 uint64_t titleid;
 uint8_t save[SAVE_SIZE];
@@ -63,7 +75,7 @@ Result saveLoad(const char* path)
 	ret = saveReadFile(save, path ? path : ROOT_FOLDER SAVEGB_FILE);
 	if (R_FAILED(ret)) return ret;
 
-	saveReadData(save, &sgame);
+	saveReadData(save, &sgame, lgame);
 	bankReadData(bank, &sbank, bankReadFile(bank, BANK_FOLDER BANKGB_FILE));
 	
 	return (true && true ? 0 : -5);
@@ -447,7 +459,7 @@ static void saveInjectItemList(uint8_t* save, const SAV_ItemList* itemList, SAV_
 
 uint8_t saveGetCurrentBox(const uint8_t* save)
 {
-	return (lgame == POKEMON_JP ? save[0x2842] : save[0x284C]) & 0x7F;
+	return (lgame == POKEMON_JP ? save[OFFSET_CURRENT_IDX_JAP] : save[OFFSET_CURRENT_IDX_ALL]) & 0x7F;
 }
 
 SAV_PokemonList* gameGetBox(uint8_t box)
@@ -524,9 +536,24 @@ bool saveIsPkmEmpty(const SAV_Pokemon* pkm)
 	return pkm->species == 0x00 || pkm->species > 0xBE;
 }
 
-const char8_t* saveGetTrainer(void)
+const char8_t* saveGetTrainerName(void)
 {
-	return save + 0x2598;
+	return save + (lgame == POKEMON_JP ? OFFSET_OT_NAME_JAP : OFFSET_OT_NAME_ALL);
+}
+
+const char8_t* saveGetRivalName(void)
+{
+	return save + (lgame == POKEMON_JP ? OFFSET_RIVAL_NAME_JAP : OFFSET_RIVAL_NAME_ALL);
+}
+
+uint8_t* saveGetPokedexOwned(void)
+{
+	return save + (lgame == POKEMON_JP ? OFFSET_POKEDEX_OWNED_JAP : OFFSET_POKEDEX_OWNED_ALL);
+}
+
+uint8_t* saveGetPokedexSeen(void)
+{
+	return save + (lgame == POKEMON_JP ? OFFSET_POKEDEX_SEEN_JAP : OFFSET_POKEDEX_SEEN_ALL);
 }
 
 Result saveReadFile(uint8_t* save, const char* path)
@@ -562,12 +589,12 @@ Result saveWriteFile(const uint8_t* save, const char* path)
 	return bytesWritten;
 }
 
-void saveReadData(const uint8_t* save, SAV_Game* sgame)
+void saveReadData(const uint8_t* save, SAV_Game* sgame, SAV_GameLang lgame)
 {
 	char title[11];
 	sgame->boxCount = (lgame == POKEMON_JP ? 8 : 12);
 	sgame->boxCapacity = (lgame == POKEMON_JP ? 30 : 20);
-	sgame->nameSize = (lgame == POKEMON_JP ? 6 : 11);
+	sgame->nameSize = (lgame == POKEMON_JP ? 0x6 : 0xB);
 
 	uint16_t offsetCurrent = (lgame == POKEMON_JP ? OFFSET_CURRENT_JAP : OFFSET_CURRENT_ALL);
 	uint16_t boxSize = BOX_SIZE(sgame->boxCapacity,0x21,sgame->nameSize);
@@ -638,14 +665,15 @@ void saveWriteData(uint8_t* save, SAV_Game* sgame)
 void saveFixChecksum(uint8_t* save)
 {
 	uint8_t chk = 0;
+	uint16_t chk_offset = (lgame == POKEMON_JP ? OFFSET_CHECKSUM_JAP : OFFSET_CHECKSUM_ALL);
 
-	// [0x2598 -> 0x3522]
-	for (uint16_t off = 0x2598; off < 0x3523; off++)
+	// [0x2598 -> checksum_offset]
+	for (uint16_t off = 0x2598; off < chk_offset; off++)
 	{
 		chk += save[off];
 	}
 
-	save[0x3523] = ~chk;
+	save[chk_offset] = ~chk;
 }
 
 uint16_t bankReadFile(uint8_t* bank, const char* path)
@@ -700,7 +728,6 @@ uint16_t bankWriteFile(const uint8_t* bank, const char* path)
 		printf("  Written %d/%d bytes\n", bytesWritten, BANK_SIZE);
 
 		fclose(fp);
-
 	}
 
 	return bytesWritten;
@@ -714,14 +741,15 @@ void bankReadData(uint8_t* bank, SAV_Bank* sbank, uint16_t bytesRead)
 	sbank->boxCount = BANK_BOX_MAX_COUNT;
 	sbank->boxCapacity = POKEMON_LIST_MAX_COUNT;
 
-	uint16_t boxSize = BOX_SIZE(sbank->boxCapacity,0x21,11);
+	uint16_t nameSize = 0xB;
+	uint16_t boxSize = BOX_SIZE(sbank->boxCapacity,0x21,nameSize);
 
 	for (uint8_t i = 0; i < sbank->boxCount; i++)
 	{
 		sbank->boxes[i].index = i;
 		sprintf(title, "Box %u", i+1);
 		fontConvertString(sbank->boxes[i].title, title);
-		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * boxSize, 0x21, 11, sbank->boxCapacity);
+		saveExtractPokemonList(bank, &sbank->boxes[i], OFFSET_BBOX_1 + i * boxSize, 0x21, nameSize, sbank->boxCapacity);
 	}
 }
 
@@ -730,7 +758,8 @@ void bankWriteData(uint8_t* bank, SAV_Bank* sbank)
 	*(uint32_t*)(bank + 0x00) = sbank->magic;
 	*(uint32_t*)(bank + 0x04) = sbank->version;
 
-	uint16_t boxSize = BOX_SIZE(sbank->boxCapacity,0x21,11);
+	uint16_t nameSize = 0xB;
+	uint16_t boxSize = BOX_SIZE(sbank->boxCapacity,0x21,nameSize);
 
 	for (uint8_t iB = 0; iB < sbank->boxCount; iB++)
 	{

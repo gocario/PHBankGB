@@ -391,6 +391,7 @@ static void boxViewerDrawTop(void)
 	{
 		SAV_Pokemon* pkm = (cursor.vPkm && !saveIsPkmEmpty(cursor.vPkm) ? cursor.vPkm : cursor.sPkm);
 
+		/** Species panel **/
 		gfxDrawPanel(56, 40, 6, 6);
 		boxDrawPokemon(pkm, 56 + 24, 40 + 24);
 		fontDrawChar8(68, 88, CHAR8_NO);
@@ -454,7 +455,7 @@ static void boxViewerDrawTop(void)
 				fontDrawString8(240, 128+i*16, dataMove(pkm->moves[i]));
 				fontDrawFromRightUInt32(304, 136+i*16, pkm->PPs[i]);
 				fontDrawChar8(312, 136+i*16, CHAR8_SLASH);
-				fontDrawFromRightUInt32(328, 136+i*16, PersonalMove(pkm->moves[i])->PP); // TODO: PersonalMove
+				fontDrawFromRightUInt32(328, 136+i*16, PersonalMove(pkm->moves[i])->PP);
 			}
 		}
 
@@ -489,8 +490,6 @@ static void boxViewerDrawTop(void)
 
 static void boxViewerDrawBottom(void)
 {
-	// fontDrawString8(200, 30, saveGetTrainer());
-
 	boxDrawBox(&cursor.pc, 0, 0);
 	boxDrawBox(&cursor.bk, 176, 0);
 

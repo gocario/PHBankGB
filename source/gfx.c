@@ -26,6 +26,7 @@ Result gfxLoadFrame(uint64_t titleid)
 		case POKEMON_GREEN: topFrame = sfil_load_PNG_file(ROMFS "frame_gbc_green.png", SF2D_PLACE_RAM); break;
 		case POKEMON_BLUE: topFrame = sfil_load_PNG_file(ROMFS "frame_gbc_blue.png", SF2D_PLACE_RAM); break;
 		case POKEMON_YELLOW: topFrame = sfil_load_PNG_file(ROMFS "frame_gbc_yellow.png", SF2D_PLACE_RAM); break;
+		default: topFrame = NULL; break;
 	}
 
 	return (topFrame ? 0 : -5);

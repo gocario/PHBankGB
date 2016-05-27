@@ -1,9 +1,6 @@
 #include "pokedex.h"
 #include "save.h"
 
-extern const uint16_t SaveConst__offsetPokedexOwned;
-extern const uint16_t SaveConst__offsetPokedexSeen;
-
 /**
  * @brief Gets a bit of a buffer.
  * @param buf The buffer to extract the bit from.
@@ -226,18 +223,20 @@ uint8_t pokedexGetNational(uint8_t index)
 
 void pokedexAddOwned(uint8_t species)
 {
-	if (species > 0 && species < 152)
+	if (species > SPECIES_MISSINGNO && species <= SPECIES_MEW)
 	{
-		setOffsetBit(save, SaveConst__offsetPokedexOwned, species-1, true);
+		setOffsetBit(saveGetPokedexOwned(), 0, species-1, true);
 	}
+	// else setOffsetBit(saveGetPokedexOwned(), 0, SPECIES_MEW, true);
 }
 
 void pokedexAddSeen(uint8_t species)
 {
-	if (species > 0 && species < 152)
+	if (species > SPECIES_MISSINGNO && species <= SPECIES_MEW)
 	{
-		setOffsetBit(save, SaveConst__offsetPokedexSeen, species-1, true);
+		setOffsetBit(saveGetPokedexSeen(), 0, species-1, true);
 	}
+	// else setOffsetBit(saveGetPokedexSeen(), 0, SPECIES_MEW, true);
 }
 
 bool pokedexIsFromTPP(uint8_t species, const char8_t* nickname, const char8_t* otname)

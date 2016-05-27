@@ -58,13 +58,6 @@ int main(int argc, char* argv[])
 	}
 
 	titleid = titleEntry.titleid;
-
-	ret = gfxLoadFrame(titleEntry.titleid);
-	if (R_FAILED(ret))
-	{
-		// Graphics
-		error |= ERR_GRAPHICS;
-	}
 #else // __3dsx
 	ret = FS_Init();
 	if (R_FAILED(ret))
@@ -80,6 +73,7 @@ int main(int argc, char* argv[])
 	APT_GetProgramID(&titleid);
 	aptCloseSession();
 #endif
+#endif
 
 	ret = gfxLoadFrame(titleid);
 	if (R_FAILED(ret))
@@ -87,7 +81,6 @@ int main(int argc, char* argv[])
 		// Graphics
 		error |= ERR_GRAPHICS;
 	}
-#endif
 
 	ret = saveLoad(argc > 1 ? argv[1] : NULL);
 	if (R_FAILED(ret))
@@ -115,12 +108,12 @@ int main(int argc, char* argv[])
 		saveSave(argc > 1 ? argv[1] : NULL);
 	}
 
-#ifdef __cia
 	gfxFreeFrame();
+
+#ifdef __cia
 	FSCIA_Exit();
 	} // while (TS_Loop())
 #else // __3dsx
-	gfxFreeFrame();
 	FS_Exit();
 #endif
 

@@ -8,7 +8,7 @@
 #define CHAR_SIZE (8)
 
 ///
-enum
+typedef enum
 {
 	C_NULL = 0x00,			///< \0
 	C_PKMN = 0x4A,			///< PKMN

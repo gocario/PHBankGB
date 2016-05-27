@@ -73,7 +73,7 @@ Result FSCIA_Init(u64 titleid, FS_MediaType mediatype);
  */
 Result FSCIA_Exit(void);
 
-#else
+#else // __3dsx
 
 /**
  * @brief Initializes the filesystem service.

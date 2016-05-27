@@ -4,7 +4,12 @@
 
 #define SAVE_SIZE (0x8000) // 0x7A4C
 #define BANK_SIZE (0x8E00) // 0x8D28
-#define BOX_SIZE(c,sp,sn) (2+c*(1+sp+sn*2)) // (1+c+1+c*sp+c*sn+c*sn)
+/**
+ * c: Capacity
+ * sp: Pokémon Size (PC: 0x21| Party:)
+ * sn: Name Size
+ */
+#define BOX_SIZE(c,sp,sn) (2+(c)*(1+(sp)+(sn)*2)) // (1+c+1+c*sp+c*sn+c*sn)
 #define POKEMON_LIST_MAX_COUNT (32) // Party: 6 | Box: 20 | BoxJP: 30 | BoxBK: 32
 #define ITEM_LIST_MAX_COUNT (100) // Pocket: 20 | PC: 50 | Bank: 100
 #define GAME_BOX_MAX_COUNT (12) // 12 | JP: 8
@@ -12,16 +17,20 @@
 
 #define NOT_POKEMON (0) // Definitely not a Pokémon
 
-/// 
+/// Game versions
 typedef enum
 {
-	POKEMON_RED = 1,	///< Pokémon Red
-	POKEMON_GREEN = 2,	///< Pokémon Green
-	POKEMON_BLUE = 3,	///< Pokémon Blue
-	POKEMON_YELLOW = 4,	///< Pokémon Yellow
+	POKEMON_RED = 1,		///< Pokémon Red
+	POKEMON_GREEN = 2,		///< Pokémon Green
+	POKEMON_BLUE = 3,		///< Pokémon Blue
+	POKEMON_YELLOW = 4,		///< Pokémon Yellow
+
+	POKEMON_GOLD = 5,		///< Pokémon Gold
+	POKEMON_SILVER = 6,		///< Pokémon Silver
+	POKEMON_CRYSTAL = 7,	///< Pokémon Crystal
 } SAV_GameVersion;
 
-/// 
+/// Game languages
 typedef enum
 {
 	POKEMON_JP = 1,	///< Japanese
@@ -30,12 +39,9 @@ typedef enum
 	POKEMON_DE = 4,	///< German
 	POKEMON_IT = 5,	///< Italian
 	POKEMON_ES = 6,	///< Spanish
-
-	POKEMON_JAP = 0xFE,	///< Japanese Pokémon
-	POKEMON_ALL = 0xFF,	///< International Pokémon
 } SAV_GameLang;
 
-/// 
+/// Game options
 typedef enum
 {
 	OPT_SOUND_MONO = 0x0,
@@ -49,7 +55,7 @@ typedef enum
 	OPT_BATTLE_EFFECT_NO = BIT(7),
 } SAV_Option;
 
-/// 
+/// Pokémon status
 typedef enum
 {
 	STATUS_OK = 0,				///< OK
@@ -61,7 +67,7 @@ typedef enum
 	STATUS_PARALYZED = BIT(6),	///< Paralyzed status
 } SAV_Status;
 
-/// 
+/// Pokémon types
 typedef enum
 {
 	TYPE_NORMAL = 0x0,		///< Normal type
@@ -93,7 +99,7 @@ typedef enum
 	TYPE_DRAGON = 0x1A,		///< Dragon type
 } SAV_Type;
 
-/// 
+/// Pokémon stats
 typedef enum
 {
 	STAT_HP = 0,		///< The hit points stat
@@ -101,22 +107,24 @@ typedef enum
 	STAT_DEFENSE = 2,	///< The defense stat
 	STAT_SPEED = 3,		///< The speed stat
 	STAT_SPECIAL = 4,	///< The special stat
-	STAT_ATK = STAT_ATTACK,
-	STAT_DEF = STAT_DEFENSE,
-	STAT_SPE = STAT_SPEED,
-	STAT_SPC = STAT_SPECIAL,
+	STAT_ATK = STAT_ATTACK,		///< Shortcut for attack
+	STAT_DEF = STAT_DEFENSE,	///< Shortcut for defense
+	STAT_SPE = STAT_SPEED,		///< Shortcut for speed
+	STAT_SPC = STAT_SPECIAL,	///< Shortcut for special
 } SAV_Stat;
 
-/// 
+/// Pokémon data structure
 typedef struct
 {
 	// Memory pointer
 	uint8_t* pk1;	///< UNUSED / Pk1 structure pointer
 	uint8_t* ot1;	///< UNUSED / OT name pointer
 	uint8_t* nk1;	///< UNUSED / NK name pointer
-	bool moved;
+	bool moved : 1;
+	bool jpned : 1;	///< UNUSED
+	unsigned : 7;
 
-	// Shared attributes
+	// Attributes
 	uint8_t speciesIndex;
 	uint16_t currentHP;
 	uint8_t currentLevel;
@@ -138,6 +146,7 @@ typedef struct
 	uint16_t DEF;	///< Defense
 	uint16_t SPE;	///< Speed
 	uint16_t SPC;	///< Special
+	// uint16_t stats[5];
 
 	// Extra attributes
 	uint8_t species;		///< Species from list
@@ -146,9 +155,10 @@ typedef struct
 	uint8_t nationalDex;	///< National Pokédex
 } SAV_Pokemon;
 
-/// 
+/// A pokémon list
 typedef struct
 {
+	// Attributes
 	uint8_t count;		///< The count of Pokémon (<= capacity)
 	uint8_t species[POKEMON_LIST_MAX_COUNT];
 	SAV_Pokemon slots[POKEMON_LIST_MAX_COUNT];
@@ -162,16 +172,17 @@ typedef struct
 	char8_t title[11];	///< An emulated title box
 } SAV_PokemonList;
 
-/// 
+/// Item data structure
 typedef struct
 {
 	uint8_t index;
 	uint8_t	count;
 } SAV_Item;
 
-/// 
+/// An item list
 typedef struct
 {
+	// Attributes
 	uint8_t count;	///< The count of item (<= capacity)
 	SAV_Item slots[ITEM_LIST_MAX_COUNT];
 
@@ -179,18 +190,26 @@ typedef struct
 	uint8_t capacity;	///< The max size of the list (<= ITEM_LIST_MAX_COUNT)
 } SAV_ItemList;
 
-/// 
+/// Game data structure
 typedef struct
 {
+	// Memory pointer
+	uint8_t* data; // UNUSED / Buffer pointer
+
+	// Attributes
 	uint8_t nameSize;
 	uint8_t boxCount;
 	uint8_t boxCapacity;
 	SAV_PokemonList boxes[GAME_BOX_MAX_COUNT];
 } SAV_Game;
 
-/// 
+/// Bank data structure
 typedef struct
 {
+	// Memory pointer
+	uint8_t* data; // UNUSED / Buffer pointer
+
+	// Attributes
 	uint32_t magic;
 	uint32_t version;
 	uint8_t boxCount;
@@ -294,7 +313,25 @@ uint8_t saveGetBoxCount(bool inBank);
  * @brief Gets the name of the game's trainer.
  * @return The trainer's name as string8_t.
  */
-const char8_t* saveGetTrainer(void);
+const char8_t* saveGetTrainerName(void);
+
+/**
+ * @brief Gets the name of the game's rival.
+ * @return The rival's name as string8_t.
+ */
+const char8_t* saveGetRivalName(void);
+
+/**
+ * @brief Gets the owned species Pokédex.
+ * @return The Pokédex pointer.
+ */
+uint8_t* saveGetPokedexOwned(void);
+
+/**
+ * @brief Gets the seen species Pokédex.
+ * @return The Pokédex pointer.
+ */
+uint8_t* saveGetPokedexSeen(void);
 
 /**
  * @brief Reads a save file to a save buffer.
@@ -315,7 +352,7 @@ Result saveWriteFile(const uint8_t* save, const char* path);
  * @param[in] save The savedata buffer.
  * @param[out] sgame The path of the save file.
  */
-void saveReadData(const uint8_t* save, SAV_Game* sgame);
+void saveReadData(const uint8_t* save, SAV_Game* sgame, SAV_GameLang lgame);
 
 /**
  * @brief Writes a save struct to a save buffer.

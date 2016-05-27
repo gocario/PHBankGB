@@ -16,12 +16,12 @@
 #define r(fmt, args ...)
 #endif
 
-static const u32 pokemonTitleCount = 19-4;
+static const u32 pokemonTitleCount = 19;
 static const u64 pokemonTitleIDs[] = {
-	// 0x0004000000170C00, ///< Pokémon Red	(JPN) (JP)
-	// 0x0004000000170D00, ///< Pokémon Green	(JPN) (JP)
-	// 0x0004000000170E00, ///< Pokémon Blue?	(JPN) (JP)
-	// 0x0004000000170F00, ///< Pokémon Yellow	(JPN) (JP)
+	0x0004000000170C00, ///< Pokémon Red	(JPN) (JP)
+	0x0004000000170D00, ///< Pokémon Green	(JPN) (JP)
+	0x0004000000170E00, ///< Pokémon Blue?	(JPN) (JP)
+	0x0004000000170F00, ///< Pokémon Yellow	(JPN) (JP)
 	0x0004000000171000, ///< Pokémon Red	(FREE) (EN)
 	0x0004000000171100, ///< Pokémon Blue	(FREE) (EN)
 	0x0004000000171200, ///< Pokémon Yellow	(FREE) (EN)
