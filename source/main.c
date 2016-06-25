@@ -47,8 +47,15 @@ int main(int argc, char* argv[])
 	}
 
 #ifdef __cia
+#ifdef DEBUG
+	while (!error)
+	{
+		titleEntry.titleid = 0x0004000000171800;
+		titleEntry.mediatype = 3; // To fail FSCIA_Init
+#else
 	while (!error && TS_Loop())
 	{
+#endif
 
 	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
 	if (R_FAILED(ret))
@@ -69,9 +76,7 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
 	titleid = 0x0004000000171800; // Pokémon Jaune
 #else
-	aptOpenSession();
 	APT_GetProgramID(&titleid);
-	aptCloseSession();
 #endif
 #endif
 

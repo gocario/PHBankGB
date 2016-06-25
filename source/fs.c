@@ -130,6 +130,14 @@ Result FSCIA_Init(u64 titleid, FS_MediaType mediatype)
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
 
 		saveInitialized = R_SUCCEEDED(ret); // true
+
+		if (!saveInitialized)
+		{
+			ret = FSUSER_OpenArchive(&saveArchive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, NULL));
+			r(" > FSUSER_OpenArchive: %lx\n", ret);
+
+			saveInitialized = R_SUCCEEDED(ret); // true
+		}
 	}
 	else
 	{
@@ -191,7 +199,6 @@ Result FS_Init(void)
 
 		saveInitialized = R_SUCCEEDED(ret); // true
 
-#ifdef DEBUG
 		if (!saveInitialized)
 		{
 			ret = FSUSER_OpenArchive(&saveArchive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, NULL));
@@ -199,7 +206,6 @@ Result FS_Init(void)
 
 			saveInitialized = R_SUCCEEDED(ret); // true
 		}
-#endif
 	}
 	else
 	{

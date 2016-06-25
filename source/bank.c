@@ -29,6 +29,11 @@ bool bankUpdate(uint8_t* bank, uint16_t bytesRead)
 		*(uint32_t*)(bank + 0x00) = MakeMagic('B', 'K', 'G', 'B');
 		printf("\e"); // It is really needed else it will freeze
 
+		// bank[0] = 'B';
+		// bank[1] = 'K';
+		// bank[2] = 'G';
+		// bank[3] = 'B';
+
 		*(uint32_t*)(bank + 0x04) = version = 0x010001A0;
 		*(uint32_t*)(bank + 0x20) = 0x00000100;	///< Box data offset (NEW)
 	}
@@ -41,5 +46,5 @@ bool bankUpdate(uint8_t* bank, uint16_t bytesRead)
 	}
 
 	// It didn't reach the current version
-	return false;
+	return version == VERSION;
 }
