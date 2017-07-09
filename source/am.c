@@ -16,7 +16,7 @@
 #define r(fmt, args ...)
 #endif
 
-static const u32 pokemonTitleCount = 19;
+static const u32 pokemonTitleCount = 20;
 static const u64 pokemonTitleIDs[] = {
 	0x0004000000170C00, ///< Pokémon Red	(JPN) (JP)
 	0x0004000000170D00, ///< Pokémon Green	(JPN) (JP)
@@ -37,6 +37,8 @@ static const u64 pokemonTitleIDs[] = {
 	0x0004000000171C00, ///< Pokémon Red	(EUR) (IT)
 	0x0004000000171D00, ///< Pokémon Blue	(EUR) (IT)
 	0x0004000000171E00, ///< Pokémon Yellow	(EUR) (IT)
+	0x00040000008D9200, ///< Pokémon Crystal(FREE) (IT)
+	
 	0x0000000000000000,	///< Not Pokémon
 };
 
