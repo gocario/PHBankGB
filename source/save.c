@@ -139,7 +139,7 @@ SAV_GameLang saveGetGameLang(uint64_t titleid)
 		case 0x0004000000171000: ///< Pokémon Red (FREE) (EN)
 		case 0x0004000000171100: ///< Pokémon Blue (FREE) (EN)
 		case 0x0004000000171200: ///< Pokémon Yellow (FREE) (EN)
-		case 0x00040000008D9200: ///< Pokémon Crystal (FREE) (EN)
+		case 0x0004000000000000: ///< Pokémon Crystal (FREE) (EN)
 			return POKEMON_EN;
 		case 0x0004000000171600: ///< Pokémon Red (EUR) (FR) ??
 		case 0x0004000000171700: ///< Pokémon Blue (EUR) (FR)
