@@ -179,43 +179,43 @@ uint8_t pokedexGetNational(uint8_t index)
 		case 0xBC: return  69; // Bellsprout
 		case 0xBD: return  70; // Weepinbell
 		case 0xBE: return  71; // Victreebel
-		case 0x1F: // Scizor
-		case 0x20: // Shuckle
-		case 0x32: // Heracross
-		case 0x34: // Ho-Oh
-		case 0x38: // Sneasel
-		case 0x3D: // Teddiursa
-		case 0x3E: // Ursaring
-		case 0x3F: // Slugma
-		case 0x43: // Magcargo
-		case 0x44: // Swinub
-		case 0x45: // Piloswine
-		case 0x4f: // Corsola
-		case 0x50: // Remoraid
-		case 0x56: // Delibird
-		case 0x57: // Mantine
-		case 0x5E: // Skarmory
-		case 0x5F: // Houndour
-		case 0x73: // Houndoom
-		case 0x79: // Kingdra
-		case 0x7A: // Phanpy
-		case 0x7F: // Donphan
-		case 0x86: // Porygon2
-		case 0x87: // Stantler
-		case 0x8C: // Tyrogue
-		case 0x92: // Hitmontop
-		case 0x9C: // Smoochum
-		case 0x9F: // Elekid
-		case 0xA0: // Magby
-		case 0xA1: // Miltank
-		case 0xA2: // Blissey
-		case 0xAC: // Raikou
-		case 0xAE: // Entei
-		case 0xAF: // Suicune
-		case 0xB5: // Larvitar
-		case 0xB6: // Pupitar (Kabutops Fossil)
-		case 0xB7: // Tyranitar (Aerodactly Fossil)
-		case 0xB8: // Lugia (Ghost)
+		case 0x1F: return 212; // Scizor
+		case 0x20: return 213; // Shuckle
+		case 0x32: return 214; // Heracross
+		case 0x34: return 250; // Ho-Oh
+		case 0x38: return 215; // Sneasel
+		case 0x3D: return 216; // Teddiursa
+		case 0x3E: return 217; // Ursaring
+		case 0x3F: return 218; // Slugma
+		case 0x43: return 219; // Magcargo
+		case 0x44: return 220; // Swinub
+		case 0x45: return 221; // Piloswine
+		case 0x4f: return 222; // Corsola
+		case 0x50: return 223; // Remoraid
+		case 0x56: return 225; // Delibird
+		case 0x57: return 226; // Mantine
+		case 0x5E: return 227; // Skarmory
+		case 0x5F: return 228; // Houndour
+		case 0x73: return 229; // Houndoom
+		case 0x79: return 230; // Kingdra
+		case 0x7A: return 231; // Phanpy
+		case 0x7F: return 232; // Donphan
+		case 0x86: return 233; // Porygon2
+		case 0x87: return 234; // Stantler
+		case 0x8C: return 236; // Tyrogue
+		case 0x92: return 237; // Hitmontop
+		case 0x9C: return 238; // Smoochum
+		case 0x9F: return 239; // Elekid
+		case 0xA0: return 240; // Magby
+		case 0xA1: return 241; // Miltank
+		case 0xA2: return 242; // Blissey
+		case 0xAC: return 243; // Raikou
+		case 0xAE: return 244; // Entei
+		case 0xAF: return 245; // Suicune
+		case 0xB5: return 246; // Larvitar
+		case 0xB6: return 247; // Pupitar (Kabutops Fossil)
+		case 0xB7: return 248; // Tyranitar (Aerodactly Fossil)
+		case 0xB8: return 249; // Lugia (Ghost)
 		           return 152; // Missingno.
 		default:   return 153; // Garbage data
 	}

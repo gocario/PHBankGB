@@ -120,6 +120,8 @@ SAV_GameVersion saveGetGameVersion(uint64_t titleid)
 		case 0x0004000000171B00: ///< Pokémon Yellow (EUR) (ES)
 		case 0x0004000000171E00: ///< Pokémon Yellow (EUR) (IT)
 			return POKEMON_YELLOW;
+		case 0x0004000000000000: ///< Pokémon Crystal (FREE) (EN)
+			return POKEMON_CRYSTAL;
 		default:
 			return NOT_POKEMON;
 	}
@@ -137,10 +139,11 @@ SAV_GameLang saveGetGameLang(uint64_t titleid)
 		case 0x0004000000171000: ///< Pokémon Red (FREE) (EN)
 		case 0x0004000000171100: ///< Pokémon Blue (FREE) (EN)
 		case 0x0004000000171200: ///< Pokémon Yellow (FREE) (EN)
+		case 0x0004000000000000: ///< Pokémon Crystal (FREE) (EN)
 			return POKEMON_EN;
 		case 0x0004000000171600: ///< Pokémon Red (EUR) (FR) ??
 		case 0x0004000000171700: ///< Pokémon Blue (EUR) (FR)
-		case 0x0004000000171800: ///< Pokémon Yellow (EUR) (FR)
+		case 0x0004000000171800: ///< Pokémon Yellow (EUR) (FR)	
 			return POKEMON_FR;
 		case 0x0004000000171300: ///< Pokémon Red (EUR) (DE)
 		case 0x0004000000171400: ///< Pokémon Blue (EUR) (DE)
