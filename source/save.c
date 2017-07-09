@@ -120,7 +120,7 @@ SAV_GameVersion saveGetGameVersion(uint64_t titleid)
 		case 0x0004000000171B00: ///< Pokémon Yellow (EUR) (ES)
 		case 0x0004000000171E00: ///< Pokémon Yellow (EUR) (IT)
 			return POKEMON_YELLOW;
-		case 0x00040000008D9200: ///< Pokémon Crystal (FREE) (EN)
+		case 0x0004000000000000: ///< Pokémon Crystal (FREE) (EN)
 			return POKEMON_CRYSTAL;
 		default:
 			return NOT_POKEMON;
